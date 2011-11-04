@@ -57,6 +57,9 @@ from the given location."
 
 (defun objects-at (loc objs obj-locs)
   (labels (
+	   ;; here we define a predicate, using closure on variable loc
+	   ;; this is very helpful because it provide an abstraction
+	   ;; for knowing if an object is in the hardcoded loc location.
 	   (at-loc-p (obj)
 	     (eq (car (cdr (assoc obj obj-locs))) loc))
 	   )
@@ -68,6 +71,9 @@ from the given location."
 	     `(you see a ,obj on the floor.)
 	     )
 	   )
+    ;; here we use the apply function because it allow us to use the items
+    ;; contained in a list (in this context the list is returned by mapcar)
+    ;; as arguments to another function (in this context the append function)
     (apply 
      (function append)
      (mapcar (function describe-obj) (objects-at loc objs obj-loc)))
@@ -131,4 +137,33 @@ from the given location."
       (eval sexp)
       '(i do not know that command.)
       )
+  )
+
+(defun tweak-text (lst caps lit)
+  (when lst
+    (let ((item (car lst))
+	  (rest (cdr lst)))
+      (cond ((eq item #\space) (cons item (tweak-text rest caps lit)))
+	    ((member item '(#\! #\? #\.)) (cons item (tweak-text rest t lit)))
+	    ((eq item #\") (tweak-text rest caps (not lit)))
+	    (lit (cons item (tweak-text rest nil lit)))
+	    ((or caps lit) (cons (char-upcase item) (tweak-text rest nil lit)))
+	    (t (cons (char-downcase item) (tweak-text rest nil nil)))))))
+
+(defun game-print (lst)
+  (princ (coerce (tweak-text (coerce (string-trim "() "
+						  (prin1-to-string lst))
+				     'list)
+			     t
+			     nil)
+		 'string))
+  (fresh-line))
+
+(defun game-repl ()
+  (let ((cmd (game-read)))
+    (unless (eq (car cmd) 'quit)
+      (game-print (game-eval cmd))
+      (game-repl)
+      )
+    )
   )
