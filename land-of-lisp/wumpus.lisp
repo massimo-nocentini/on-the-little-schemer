@@ -123,3 +123,30 @@
   ;; of list of edges, including all the edge necessary to bridge
   ;; islands, in order to have a congestion city completly connected.
   (append (connect-with-bridges (find-islands nodes edge-list)) edge-list))
+
+(defun edges-to-alist (edge-list)
+  (mapcar (lambda (node1)
+	    (cons node1
+		  (mapcar (lambda (edge)
+			    ;; here we build a list consisting of the
+			    ;; second component of the edge, because
+			    ;; edge is a pure (dotted) cons and not a
+			    ;; list)
+			    (list (cdr edge)))
+			  ;; the following expression first retrieve
+			  ;; the neighborhood of the node 'node1'
+			  ;; accessing the passed list of edges
+			  ;; 'edge-list', after remove all the
+			  ;; duplicated pairs using the 'equal'
+			  ;; function (why exactly 'equal'?). In this
+			  ;; way we remove edges that have the same
+			  ;; components, aka two or more edges that
+			  ;; pair two nodes, returning only one of
+			  ;; them to mantain the reachability
+			  ;; relation.
+			  (remove-duplicates (direct-edges node1 edge-list)
+					     :test (function equal)))))
+	  ;; the following expression first retrieve all first
+	  ;; components from the edge-list list, after removes all the
+	  ;; duplicated nodes
+	  (remove-duplicates (mapcar (function car) edge-list))))
