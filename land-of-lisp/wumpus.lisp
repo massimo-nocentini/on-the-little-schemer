@@ -138,15 +138,93 @@
 			  ;; accessing the passed list of edges
 			  ;; 'edge-list', after remove all the
 			  ;; duplicated pairs using the 'equal'
-			  ;; function (why exactly 'equal'?). In this
-			  ;; way we remove edges that have the same
-			  ;; components, aka two or more edges that
-			  ;; pair two nodes, returning only one of
-			  ;; them to mantain the reachability
-			  ;; relation.
+			  ;; function. We have to use the function
+			  ;; 'equal' exactly because the default
+			  ;; function is 'eql' instead, and, known we
+			  ;; use the function 'direct-edges', whom
+			  ;; make a new list containing different
+			  ;; cons, which can have the same car and cdr
+			  ;; component but are conmpletly distinct
+			  ;; cons object, with 'eql' function they are
+			  ;; always different, while using the 'equal'
+			  ;; function we compare the car and the cdr
+			  ;; of conses, which return true for conses
+			  ;; of this form: (A . B) (A . B), for some
+			  ;; symbols A and B. this way we remove
+			  ;; edges that have the same components, aka
+			  ;; two or more edges that pair two nodes,
+			  ;; returning only one of them to mantain the
+			  ;; reachability relation.
 			  (remove-duplicates (direct-edges node1 edge-list)
 					     :test (function equal)))))
 	  ;; the following expression first retrieve all first
 	  ;; components from the edge-list list, after removes all the
 	  ;; duplicated nodes
 	  (remove-duplicates (mapcar (function car) edge-list))))
+
+(defun add-cops (edge-alist edges-with-cops)
+  (mapcar (lambda (x)
+	    ;; the first component is the source of the edge
+	    (let ((node1 (car x))
+		  (node1-edges (cdr x)))
+	      ;; here we build conceptually the same things as before,
+	      ;; a list with car component the source of the edge and
+	      ;; as cdr component the list of neighbors. The only
+	      ;; difference is in the addition of information on the
+	      ;; edges as done below.
+	      (cons node1
+		    (mapcar (lambda (edge)
+			      ;; every element passed in in this
+			      ;; lambda function is a list, hence the
+			      ;; actual neighbor is in the car
+			      ;; position.
+			      (let ((node2 (car edge)))
+				;; here we build a list with the two
+				;; nodes that we are analyzing
+				;; (neighbors of each other) and check
+				;; if at least one of the two pair is
+				;; contained in the edges-with-cops
+				;; list passed in as argument.
+				(if (intersection (edge-pair node1 node2)
+						  edges-with-cops
+						  ;; here we use the
+						  ;; equal function
+						  ;; because we want
+						  ;; to compare the
+						  ;; pair of neighbors
+						  ;; component by
+						  ;; component.
+						  :test (function equal))
+				    ;; if there exists at least one
+				    ;; pair in common we augment the
+				    ;; reachability information adding
+				    ;; the symbol 'cops' to it
+				    (list node2 'cops)
+				    ;; otherwise we leave the previous
+				    ;; information as it was before.
+				    edge)))
+			    node1-edges))))
+	  edge-alist))
+
+(defun make-city-edges ()
+  ;; we enumerate all possible nodes. Note the let*, which allow from
+  ;; the second variable binding to refer to a variable defined before
+  ;; the current one.
+  (let* ((nodes (loop for i from 1 to *node-num*
+		     collect i))
+	 ;; getting a list of edges that allow the Congestion City to
+	 ;; be fully connected.
+	 (edge-list (connect-all-islands nodes (make-edge-list)))
+	 ;; in this way we select randomly which edge is checked by
+	 ;; the cops. It is something like an indicator function the
+	 ;; lambda that we are going to use.
+	 (cops (remove-if-not (lambda (x)
+				;; don't use the input, the predicate
+				;; is true if and only if the random
+				;; invocation return zero. The
+				;; probability that zero is the
+				;; outcome is 1/*cop-odds* (an uniform
+				;; distribution).
+				(zerop (random *cop-odds*)))
+			      edge-list)))
+    (add-cops (edges-to-alist edge-list) cops)))
