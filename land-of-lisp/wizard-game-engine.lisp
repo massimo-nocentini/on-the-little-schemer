@@ -30,36 +30,39 @@
   (car (cdr (assoc location nodes))))
 
 (defun describe-path (edge)
-  ;; nice example of quasiquoting feature: mixing computer code in data code,
-  ;; using flip-flop of ` and ,
+  ;; nice example of quasiquoting feature: mixing code to be evaluated
+  ;; in data code, using flip-flop of ` and ,
   `(there is a ,(car (cdr (cdr edge))) going ,(car (cdr edge)) from here.))
 
 (defun describe-paths (location edges)
-"This function encapsulate the rule for build a list with the description of 
-each path, passing the necessary dependency of 
-the collect-paths-description-into-one-list function with the correct value."
+"This function encapsulate the rule for build a list with the
+description of each path, passing the necessary dependency of the
+collect-paths-description-into-one-list function with the correct
+value."
   (apply
    (function append)
    (collect-paths-description-into-one-list 
     (get-outgoing-paths location edges))))
 
 (defun collect-paths-description-into-one-list (paths)
-"This function encapsulate the rules of describing a list of path objects given
-as parameter. It doesn't know how to rietrieve the path objects, it knows only 
-how to assemble them for obtain a description for each path. In this way this
-function is decoupled from the get-outgoing-paths function."
+"This function encapsulate the rules of describing a list of path
+objects given as parameter. It doesn't know how to retrieve the path
+objects, it knows only how to assemble them for obtain a description
+for each path. In this way this function is decoupled from the
+get-outgoing-paths function."
   (mapcar (function describe-path) paths))
 
 (defun get-outgoing-paths (location edges)
-"This function encapsulate the concept of how to retrieve the paths exiting
-from the given location."
+"This function encapsulate the concept of how to retrieve the paths
+exiting from the given location."
   (cdr (assoc location edges)))
 
 (defun objects-at (loc objs obj-locs)
   (labels (
-	   ;; here we define a predicate, using closure on variable loc
-	   ;; this is very helpful because it provide an abstraction
-	   ;; for knowing if an object is in the hardcoded loc location.
+	   ;; here we define a predicate, using closure on variable
+	   ;; loc this is very helpful because it provide an
+	   ;; abstraction for knowing if an object is in the hardcoded
+	   ;; loc location.
 	   (at-loc-p (obj)
 	     (eq (car (cdr (assoc obj obj-locs))) loc))
 	   )
@@ -71,9 +74,10 @@ from the given location."
 	     `(you see a ,obj on the floor.)
 	     )
 	   )
-    ;; here we use the apply function because it allow us to use the items
-    ;; contained in a list (in this context the list is returned by mapcar)
-    ;; as arguments to another function (in this context the append function)
+    ;; here we use the apply function because it allow us to use the
+    ;; items contained in a list (in this context the list is returned
+    ;; by mapcar) as arguments to another function (in this context
+    ;; the append function)
     (apply 
      (function append)
      (mapcar (function describe-obj) (objects-at loc objs obj-loc)))
@@ -117,22 +121,22 @@ from the given location."
   ;; hosts a pure Lisp S-expression
   (let ((cmd (read-from-string (concatenate 'string "(" (read-line) ")"))))
     (flet ((quote-it (x)
-	     ;; using cons instead of list is wrong because x is an object 
-	     ;; not a list, so using a cons form produce a pair of object and 
-	     ;; not a list
+	     ;; using cons instead of list is wrong because x is an
+	     ;; object not a list, so using a cons form produce a pair
+	     ;; of object and not a list
 	     (list 'quote x)))
-      ;; now we can quote-it all the argument given by the user and build a 
-      ;; new cons with the command entered in the first position, getting it
-      ;; from cmd variable directly
+      ;; now we can quote-it all the argument given by the user and
+      ;; build a new cons with the command entered in the first
+      ;; position, getting it from cmd variable directly
       (cons (car cmd) (mapcar (function quote-it) (cdr cmd)))
       )
     )
   )
 
 (defun game-eval (sexp)
-  ;; checking that the function of the form encapsulated by sexp argument
-  ;; is a command that is in our game scope. Anything else will be banned and
-  ;; returned to sender.
+  ;; checking that the function of the form encapsulated by sexp
+  ;; argument is a command that is in our game scope. Anything else
+  ;; will be banned and returned to sender.
   (if (member (car sexp) *allowed-commands*)
       (eval sexp)
       '(i do not know that command.)
