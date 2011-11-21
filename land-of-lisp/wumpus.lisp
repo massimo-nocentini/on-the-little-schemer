@@ -228,3 +228,66 @@
 				(zerop (random *cop-odds*)))
 			      edge-list)))
     (add-cops (edges-to-alist edge-list) cops)))
+
+(defun neighbors (node edge-alist)
+  ;; this function build the neighborhood of node 'node' looking up
+  ;; the edge-alist list. It is a very functional form to build the
+  ;; neighborhood of a node because we haven't a structure dedicated
+  ;; for each node (like a object oriented solution could be), but we
+  ;; maintain an alist which can be used to compute the
+  ;; neighborhood. In this way we are more flexible because if we want
+  ;; to modify the concept of neighborhood we have to modify only this
+  ;; function and not the data structure.
+  (mapcar (function car) (cdr (assoc node edge-alist))))
+
+(defun within-one (source neighbor edge-alist)
+  ;; here we check if the neighbor is effectively in the neighborhood
+  ;; of source
+  (member neighbor (neighbors source edge-alist)))
+
+(defun within-two (source neighbor edge-alist)
+  ;; here we check if neighbor is in the first neighborhood (the first
+  ;; level of a BFS search, or ...
+  (or (within-one source neighbor edge-alist)
+      ;; ... for each node in the first level of the BFS search we ask
+      ;; if it contains 'neighbor'
+      (some (lambda (x)
+	      (within-one x neighbor edge-alist))
+	    (neighbors source edge-alist))))
+
+(defun make-city-nodes (edge-alist)
+  ;; get some random nodes for the Wumpus and the glow-worms
+  (let ((wumpus (random-node))
+	(glow-worms (loop for i below *worm-num*
+			 collect (random-node))))
+    (loop for n from 1 to *node-num*
+	 collect (append (list n)	;here we must build a list
+					;with only one element in
+					;order to use the function
+					;append to build a more
+					;informative object for the
+					;node 'n'
+			 ;; if none of the two conditions is true, the
+			 ;; 'cond' function return (), which is okay
+			 ;; because we require a list however
+			 (cond ((eql n wumpus) '(wumpus))
+			       ;; use the function within-two we cover
+			       ;; also the caso within-one
+			       ((within-two n wumpus edge-alist) '(blood!)))
+			 (cond ((member n glow-worms) '(glow-worm))
+			       ((some (lambda (worm)
+					;; here we use within-one
+					;; function because the
+					;; glow-worms leave a trace
+					;; only one edge further, not
+					;; two like the Wumpus
+					(within-one n worm
+				      edge-alist)) glow-worms)
+				      '(lights!)))
+			 ;; the last check we have to do is about the
+			 ;; cops. If the edge list associated to node
+			 ;; 'n' is not empty, then it must be equals
+			 ;; to '(COPS), hense we hear '(SIRENS!)
+			 (when (some (function cdr) (cdr (assoc n edge-alist)))
+			   '(sirens!))))))
+			       
