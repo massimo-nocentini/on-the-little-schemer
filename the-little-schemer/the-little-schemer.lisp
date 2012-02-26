@@ -19,4 +19,38 @@ doesn't contain any lists, nil otherwise."
 	       (car lat))
 	   (memberp a (cdr lat))))))
 
+(defun rember (a lat)
+  (cond
+    ((null lat) (quote ()))
+    ((eq a (car lat)) (cdr lat))
+    (t (cons			;here we know that (car lat) is not
+				;equal to the element to remove, so we
+				;have to save it building a cons
+				;structure
+	     (car lat)
+	     (rember a (cdr lat))))))
 
+(defun firsts (l)
+  (cond ((null l) (quote ()))
+	(t (cons (car (car l))		;typical element
+		 (firsts (cdr l))))))	;natural recursion
+
+(defun insertR (new old lat)
+  (cond ((null lat) (quote ()))
+	((eq old (car lat)) (cons old	;we could use (car lat) also,
+					;but this implies a
+					;computation, old is given
+					;and, in this case, is equals
+					;to (car lat)
+				  (cons new
+					(cdr lat))))
+	(t (cons (car lat)
+		 (insertR new old (cdr lat))))))
+
+(defun insertL (new old lat)
+  (cond ((null lat) (quote ()))
+	((eq old (car lat)) (cons new lat )) ;here we can use the
+					     ;entire lat as base for
+					     ;consing
+	(t (cons (car lat)
+		 (insertL new old (cdr lat))))))
