@@ -95,7 +95,64 @@
   (lisp-unit:assert-equal '(coffee tea and hick)
 			  (multirember 'cup '(coffee cup tea cup and
 			  hick cup)))
-  
 
+  (lisp-unit:assert-equal '(ice fudge topping cream with fudge topping
+   for dessert)
+			  (multi-insert-r 'topping
+				   'fudge
+				   '(ice fudge cream with fudge for dessert)))
+  
+  (lisp-unit:assert-equal '(tacos tamales and jalapeno salsa)
+			  (multi-insert-r 'jalapeno 'and '(tacos
+					  tamales and salsa)))
+
+  (lisp-unit:assert-equal '(a b c d e f g h)
+			  (multi-insert-r 'e 'd '(a b c d f g h)))
+
+  (lisp-unit:assert-equal '(a b c d f g h)
+			  (multi-insert-r 'e 'm '(a b c d f g h)))
+
+  (lisp-unit:assert-equal '(coffee cup new tea cup new and hick cup
+   new)
+			  (multi-insert-r 'new 'cup '(coffee cup tea
+					  cup and hick cup)))
+
+  (lisp-unit:assert-equal '(ice topping fudge cream with topping fudge
+   for dessert)
+			  (multi-insert-l 'topping
+				   'fudge
+				   '(ice fudge cream with fudge for dessert)))
+  
+  (lisp-unit:assert-equal '(tacos tamales jalapeno and salsa)
+			  (multi-insert-l 'jalapeno 'and '(tacos
+					  tamales and salsa)))
+
+  (lisp-unit:assert-equal '(a b c e d f g h)
+			  (multi-insert-l 'e 'd '(a b c d f g h)))
+
+  (lisp-unit:assert-equal '(a b c d f g h)
+			  (multi-insert-l 'e 'm '(a b c d f g h)))
+
+  (lisp-unit:assert-equal '(coffee new cup tea new cup and hick new
+   cup)
+			  (multi-insert-l 'new 'cup '(coffee cup tea
+					  cup and hick cup)))  
+
+  (lisp-unit:assert-equal '(ice cream with topping for dessert)
+			  (multi-subst 'topping 'fudge '(ice cream
+				   with fudge for dessert)))
+  
+  (lisp-unit:assert-equal '(tacos tamales jalapeno salsa)
+			  (multi-subst 'jalapeno 'and '(tacos tamales
+				   and salsa)))
+
+  (lisp-unit:assert-equal '(a e b c e f g h)
+			  (multi-subst 'e 'd '(a d b c d f g h)))
+
+  (lisp-unit:assert-equal '(a b c d f g h)
+			  (my-subst 'e 'm '(a b c d f g h)))
+
+
+  
   )
 				    
