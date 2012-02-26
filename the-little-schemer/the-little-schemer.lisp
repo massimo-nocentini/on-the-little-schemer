@@ -54,3 +54,35 @@ doesn't contain any lists, nil otherwise."
 					     ;consing
 	(t (cons (car lat)
 		 (insertL new old (cdr lat))))))
+
+(defun my-subst (new old lat)
+  (cond ((null lat) (quote ()))
+	((eq old (car lat)) (cons new (cdr lat)))
+	(t (cons (car lat)
+		 (my-subst new old (cdr lat))))))
+
+(defun my-subst2 (new o1 o2 lat)
+  (cond ((null lat) (quote ()))
+	((or (eq o1 (car lat))
+	     (eq o2 (car lat))) (cons new (cdr lat)))
+	(t (cons (car lat)
+		 (my-subst2 new o1 o2 (cdr lat))))))
+
+(defun multirember (a lat)
+  (cond
+    ((null lat) (quote ()))
+    ((eq a (car lat)) (multirember a (cdr lat))) ;we recur on the (cdr
+						 ;lat) because what we
+						 ;want is the
+						 ;remainder of the
+						 ;list such that
+						 ;doesn't contains any
+						 ;'a
+    (t (cons			;here we know that (car lat) is not
+				;equal to the element to remove, so we
+				;have to save it building a cons
+				;structure
+	     (car lat)
+	     (multirember a (cdr lat))))))
+
+
