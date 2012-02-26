@@ -51,9 +51,18 @@
   (lisp-unit:assert-equal '(7 13 8 1)
 			  (tup+ '(3 7 8 1) '(4 6)))
   
+  (lisp-unit:assert-false (greater-than 12 133))
 
+  (lisp-unit:assert-true (greater-than 120 11))
 
+  (lisp-unit:assert-false (greater-than 3 3))
 
+  (lisp-unit:assert-true (less-than 4 6))
+
+  (lisp-unit:assert-false (less-than 8 3))
+
+  (lisp-unit:assert-false (less-than 6 6))
+  
 
 
   )

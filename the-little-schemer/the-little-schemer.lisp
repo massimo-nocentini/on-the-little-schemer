@@ -186,3 +186,69 @@ substituted by the atom NEW."
 		     (car tup2))
 		 (tup+ (cdr tup1)
 		       (cdr tup2))))))
+
+(defun greater-than (n m)
+  "Contract: number number -> boolean
+
+Observation: this function require that the two parameters N and M are
+non negative integers"
+  (cond ((zerop n) nil)			;if we reason only about whole
+					;integers than 0 is less than
+					;or equals to any other
+					;integer, so in all two cases
+					;the answer is false. Observe
+					;that if we swap the two
+					;questions, the function is
+					;not correct.
+	((zerop m) t)			;if we ask this question n
+					;must be some positive
+					;integer, hence it is always
+					;greater than m which, in this
+					;question is 0, so we answer
+					;true.
+	(t (greater-than (1- n) (1- m))))) ;otherwise we natural recur
+					   ;on both numbers
+
+(defun less-than (n m)
+  "Contract: number number -> boolean
+
+Observation: this function require that the two parameters N and M are
+non negative integers"
+  (cond ((zerop m) nil)	      		;if m is zero than any other
+					;number n is at least equals
+					;or greater than, in both
+					;cases not less. Hence we
+					;answer false
+	((zerop n) t)			;if we reason only about whole
+					;integers than 0 is less than
+					;or equals to any other
+					;integer, and if we ask this
+					;question then m is surely a
+					;positive integer, hence we
+					;answer t. Observe that if we
+					;swap the two questions, the
+					;function is not correct.
+	(t (less-than (1- n) (1- m))))) ;otherwise we natural recur on
+					;both numbers
+)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
