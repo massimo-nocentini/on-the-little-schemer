@@ -142,3 +142,47 @@ substituted by the atom NEW."
 					       (cdr lat))))
 	(t (cons (car lat)
 		 (multi-subst new old (cdr lat))))))
+
+(defun o+ (n m)
+  "Contract: number number -> number"
+  (cond ((zerop m) n)
+	(t (o+ (1+ n) (1- m)))) )
+
+;; a subtle observation about this implementation and the one written
+;; in the book: this version is tail-recursive, that is no work have
+;; to be done when we reach the base of the recursion. In my head
+;; there are two stack, one with n objects, the other with m
+;; objects. Every recursive call pop an object from the second stack
+;; and push it on the first one. When the second stack is empty the
+;; recursion end and the result is already built in the first
+;; stack. In the book version there is something more elengant in my
+;; opinion: what is done is make a correspondence between the
+;; recursive call with the knowledge of how many time we have to apply
+;; the 1- function on the first argument. In other work we catch in
+;; the computation (the recursive calls) a knowledge about data, so we
+;; can forget the value of m during the work after the base of
+;; recursion is reached. However that implementation is not tail
+;; recursive.
+(defun o- (n m)
+  "Contract: number number -> number"
+  (cond ((zerop m) n)
+	(t (o- (1- n) (1- m)))) )
+
+(defun addtup (tup)
+  "Contract: tup-of-numbers -> number"
+  (cond ((null tup) 0)
+	(t (o+ (car tup) (addtup (cdr tup))))))
+
+(defun x (n m)
+  "Contract: number number -> number"
+  (cond ((zerop m) 0)
+	(t (o+ n (x n (1- m))))))
+
+(defun tup+ (tup1 tup2)
+  "Contract: list-of-numbers list-of-numbers -> list-of-numbers"
+  (cond ((null tup1) tup2)
+	((null tup2) tup1)
+	(t (cons (o+ (car tup1)
+		     (car tup2))
+		 (tup+ (cdr tup1)
+		       (cdr tup2))))))
