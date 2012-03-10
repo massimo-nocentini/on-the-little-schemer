@@ -48,6 +48,11 @@ doesn't contain any lists, nil otherwise."
 		 (insertR new old (cdr lat))))))
 
 (defun insertL (new old lat)
+  "Contract: atom atom list-of-atom -> list-of-atom
+
+This function, given an element OLD to search, produce a new list such
+that every occurrence of OLD is preceded by an occurrence of the atom
+NEW."
   (cond ((null lat) (quote ()))
 	((eq old (car lat)) (cons new lat )) ;here we can use the
 					     ;entire lat as base for
@@ -171,7 +176,7 @@ substituted by the atom NEW."
 (defun addtup (tup)
   "Contract: tup-of-numbers -> number"
   (cond ((null tup) 0)
-	(t (o+ (car tup) (addtup (cdr tup))))))
+ 	(t (o+ (car tup) (addtup (cdr tup))))))
 
 (defun x (n m)
   "Contract: number number -> number"
@@ -200,10 +205,10 @@ non negative integers"
 					;that if we swap the two
 					;questions, the function is
 					;not correct.
-	((zerop m) t)			;if we ask this question n
+	((zerop m) t)			;if we ask this question, N
 					;must be some positive
 					;integer, hence it is always
-					;greater than m which, in this
+					;greater than M which, in this
 					;question is 0, so we answer
 					;true.
 	(t (greater-than (1- n) (1- m))))) ;otherwise we natural recur
@@ -211,7 +216,6 @@ non negative integers"
 
 (defun less-than (n m)
   "Contract: number number -> boolean
-
 Observation: this function require that the two parameters N and M are
 non negative integers"
   (cond ((zerop m) nil)	      		;if m is zero than any other
@@ -230,25 +234,149 @@ non negative integers"
 					;function is not correct.
 	(t (less-than (1- n) (1- m))))) ;otherwise we natural recur on
 					;both numbers
-)
+
+(defun our-equal (n m)
+  (cond
+    ((zerop m) (zerop n))
+    ((zerop n) nil)			;here we know that M isn't
+					;zero, so if N is zero surely
+					;they are different
+    (t (our-equal (1- n) (1- m)))	;use natural recursion to find
+					;out the answer
+    )
+  )
 
 
+(defun our-expt (base exponent)
+  "Contract: number number -> number"
+  (cond
+    ((zerop exponent) 1)		;by the fifth commandment we
+					;return 1 as termination value
+					;because we're building a
+					;number with 'x'
+    (t (x base (expt base (1- exponent)))) ) )
 
+(defun integer-division (dividend divisor)
+  "Contract: number number -> number
 
+How many times divisor is in dividend space?"
+  (cond
+    ((less-than dividend divisor) 0) 		;by the fifth
+						;commandment relative
+						;to 'addition'
+    (t (1+ (integer-division (o- dividend divisor) divisor))) ))
 
+(defun our-length (lat)
+  "Contract: list-of-atom -> number"
+  (cond
+    ((null lat) 0)
+    (t (1+ (our-length (cdr lat))))	;here we know that at least an
+					;atom is present in the list
+					;LAT, so remember that with 1+
+    ) )
 
+(defun our-pick (n lat)
+  "Contract: number list-of-atom -> atom"
+  (cond
+    ((zerop (1- n)) (car lat) )
+    (t (our-pick (1- n) (cdr lat)))) )
 
+(defun rempick (n lat)
+  "Contract: number list-of-atom -> list-of-atom"
+  (cond
+    ((zerop (1- n)) (cdr lat))		;we have to discard the car
+					;element because we've
+					;decremented N to the
+					;requested index
+    (t (cons (car lat)
+	     (rempick (1- n) (cdr lat)))) ;use the natural recursion
+					  ;onto both N and LAT
+    ) )
 
+(defun no-nums (lat)
+  "Contract: list-of-atom -> list-of-atom"
+  (cond
+    ((null lat) (quote ()))
+    (t (cond
+	 ((numberp (car lat)) (no-nums (cdr lat)) )
+	 (t (cons (car lat) (no-nums (cdr lat)))))) ) )
 
+(defun all-nums (lat)
+  "Contract: list-of-atom -> tuple"
+  (cond
+    ((null lat) (quote ()))
+    (t (cond
+	 ((numberp (car lat)) (cons (car lat)
+				    (all-nums (cdr lat))))
+	 (t (all-nums (cdr lat)))))) )
 
+(defun eqan (a1 a2)
+  "Contract: atom atom -> boolean"
+  (cond
+    ((and (numberp a1) (numberp a2)) (our-equal a1 a2))
+    ((or (numberp a1) (numberp a2)) nil) ;if at least one of them is a
+					 ;number, so they are not the
+					 ;same atom
+    (t (eq a1 a2))) )
 
+(defun occur (a lat)
+  "Contract: atom list-of-atom -> number"
+  (cond
+    ((null lat) 0) 			;by first commandment follow
+					;the condition on the argument
+					;that change during
+					;recursion. By the Fifth
+					;commandment we return 0
+					;because we're building a
+					;number with the operator +
+    (t (cond
+	 ((eqan a (car lat)) (1+ (occur a (cdr lat))))
+	 (t (occur a (cdr lat))))) ) )
 
+(defun onep (n)
+  "Contract: number -> boolean"
+  (zerop (1- n)) )
 
+(defun rempick-using-one (n lat)
+  "Contract: number list-of-atom -> list-of-atom"
+  (cond
+    ((onep n) (cdr lat))
+    (t (cons (car lat) (rempick-using-one (1- n) (cdr lat))))))
 
-
-
-
-
-
-
-
+(defun rember* (a l)
+  "Contract: atom list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))		;if the list is empty we have
+					;nothing to remove
+    ((atomp (car l))			;if the car of L is an atom we
+					;are able to perform a check
+					;with the given A to remove
+     (cond
+       ((eqan a (car l)) (rember* a (cdr l))) ;if the car is really A
+					      ;we return what return
+					      ;this function applied
+					      ;to the cdr of L
+					      ;(assuming by induction
+					      ;that this function is
+					      ;correct for cdr of
+					      ;lists, this step is
+					      ;what really remove the
+					      ;atom a
+       (t (cons (car l) (rember* a (cdr l)))))) ;otherwise we keep the
+						;atom A, consing it on
+						;the list without atom
+						;A by induction hp
+    (t (cons (rember* a (car l))		;if the car of L isn't
+						;an atom it must be a
+						;list, so we rebuilt
+						;the cons structure
+						;(because a list is at
+						;the end a cons
+						;structure) with the
+						;two recursive
+						;applications of these
+						;rules (another way to
+						;call a (this)
+						;function)
+	     (rember* a (cdr l)))))
+  )
