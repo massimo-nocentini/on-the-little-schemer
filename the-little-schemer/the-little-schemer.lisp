@@ -347,7 +347,10 @@ How many times divisor is in dividend space?"
   "Contract: atom list-of-sexp -> list-of-sexp"
   (cond
     ((null l) (quote ()))		;if the list is empty we have
-					;nothing to remove
+					;nothing to remove, and by
+					;Fifth Commandment we return
+					;() because we are building a
+					;list with the operator cons.
     ((atomp (car l))			;if the car of L is an atom we
 					;are able to perform a check
 					;with the given A to remove
@@ -380,3 +383,85 @@ How many times divisor is in dividend space?"
 						;function)
 	     (rember* a (cdr l)))))
   )
+
+(defun insert-r* (new old l)
+  "Contract: atom atom list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))		;by the first commandment ask
+					;for null when we recur
+					;modifying a list
+					;parameter. By the fifth
+					;commandment return () because
+					;we have to build lists with
+					;cons
+    ((atomp (car l))			;we ask if the car is an atom,
+					;in this case...
+     (cond
+       ((eqan old (car l)) (cons old
+				 (cons new
+				       (insert-r* new old (cdr l)))))
+       (t (cons (car l)
+		(insert-r* new old (cdr l))))))
+    (t (cons (insert-r* new old (car l))
+	     (insert-r* new old (cdr l)))) ) )
+
+(defun occur* (a l)
+  "Contract: atom list-of-sexp -> number"
+  (cond
+    ((null l) 0)			;by the First Commandment we
+					;check for termination. By the
+					;Fifth Commandment we return 0
+					;because we have to build a
+					;number with the operator +
+    ((atomp (car l))
+     (cond
+       ((eqan a (car l)) (1+ (occur* a (cdr l))))
+       (t (occur* a (cdr l)))))
+    (t (o+ (occur* a (car l))
+	   (occur* a (cdr l)))) ))
+
+(defun subst* (new old l)
+  "Contract: atom atom list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))		;by first and fifth
+					;commandment
+    ((atomp (car l))
+     (cond
+       ((eqan old (car l)) (cons new
+				 (subst* new old (cdr l))))
+       (t (cons (car l)
+		(subst* new old (cdr l))))))
+    (t (cons (subst* new old (car l))
+	     (subst* new old (cdr l))))
+    )
+  )
+
+(defun insert-l* (new old l)
+  "Contract: atom atom list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))		;guard by first commandment,
+					;return by the fifth
+					;commandment
+    ((atomp (car l))
+     (cond
+       ((eqan old (car l)) (cons new
+				 (cons old ;here we have to cons
+					   ;because we have to change
+					   ;at least one argument when
+					   ;we recur: in our case this
+					   ;argument is L
+				       (insert-l* new old (cdr l)))))
+       (t (cons (car l)
+		(insert-l* new old (cdr l))))))
+    (t (cons (insert-l* new old (car l))
+	     (insert-l* new old (cdr l))))
+    ))
+
+(defun member* (a l)
+  "Contract: atom list-of-sexp -> boolean"
+  (cond
+    ((null l) nil)
+    ((atomp (car l)) (or (eqan a (car l))
+			 (member* a (cdr l))) )
+    (t (or (member* a (car l))
+	   (member* a (cdr l))))) )
