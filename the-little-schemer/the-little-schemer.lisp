@@ -465,3 +465,80 @@ How many times divisor is in dividend space?"
 			 (member* a (cdr l))) )
     (t (or (member* a (car l))
 	   (member* a (cdr l))))) )
+
+(defun leftmost (l)
+  "Contract: list-of-sexp -> atom"
+  (cond
+    ((atom (car l)) (car l))
+    (t (leftmost (car l)))) )
+
+(defun eqlistp-first-revision (l1 l2)
+  "Contract: list-of-sexp list-of-sexp -> boolean"
+  (cond
+    ((and (null l1) (null l2)) t)
+    ((and (null l1) (atomp l2)) nil)
+    ((null l1) nil) 			;the complete form of the
+					;question should have been:
+					;(and (null l1) (listp l2))
+
+    ;; if we reach the following question then l1 must be a non-empty
+    ;; list, but we don't know about the nature of l2
+    ((and (atomp (car l1)) (null l2)) nil)
+
+    ;; if we reach the following question then we know: if the car of
+    ;; L1 is an atom then l2 must be a list with at least one element
+    ;; (otherwise the above question should have been
+    ;; answered). Otherwise, if the car of L1 is a list, we don't know
+    ;; the nature of l2
+    ((and (atomp (car l1)) (atomp (car l2)))
+     (and (eqan (car l1) (car l2))
+	  (eqlistp (cdr l1) (cdr l2))))
+    ((atomp (car l1)) nil)		; if the car of L1 is an atom
+					; then l2 must be a list with
+					; its car is also a list, so
+					; l1 is different from l2
+    ;; at this point we know that the car of L1 is a list, hence now
+    ;; we ask on the nature of l2
+    ((null l2) nil)
+    ((atomp (car l2)) nil)
+    (t (and (eqlistp (car l1) (car l2))
+	    (eqlistp (cdr l1) (cdr l2))))    
+    ) )
+
+(defun eqlistp-second-revision (l1 l2)
+  "Contract: list-of-sexp list-of-sexp -> boolean"
+  (cond
+    ((and (null l1) (null l2)) t)
+    ((or (null l1) (null l2)) nil)
+
+    ;; if we reach the following question then we know: if the car of
+    ;; L1 is an atom then l2 must be a list with at least one element
+    ;; (otherwise the above question should have been
+    ;; answered). Otherwise, if the car of L1 is a list, we don't know
+    ;; the nature of l2
+    ((and (atomp (car l1)) (atomp (car l2)))
+     (and (eqan (car l1) (car l2))
+	  (eqlistp (cdr l1) (cdr l2))))
+
+    ((or (atomp (car l1)) (atomp (car l2))) nil)
+    
+    (t (and (eqlistp (car l1) (car l2))
+	    (eqlistp (cdr l1) (cdr l2))))    
+    ) )
+
+(defun equal-sexps (s1 s2)
+  "Contract: sexp sexp -> boolean"
+  (cond
+    ((and (atomp s1) (atomp s2)) (eqan s1 s2))
+    ((or (atomp s1) (atomp s2)) nil)
+    (t (eqlistp s1 s2)) ) )
+
+(defun eqlistp (l1 l2)
+  "Contract: list-of-sexp list-of-sexp -> boolean"
+  (cond
+    ((and (null l1) (null l2)) t)
+    ((or (null l1) (null l2)) nil)
+    (t (and (equal-sexps (car l1) (car l2))
+	    (eqlistp (cdr l1) (cdr l2)))) ) )
+
+  

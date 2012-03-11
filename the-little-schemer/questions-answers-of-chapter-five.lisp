@@ -44,6 +44,30 @@
 
   (lisp-unit:assert-true (member* 'chips '((potato) (chips ((with)
 				  fish) (chips)))))
+
+  (lisp-unit:assert-eq 'potato
+		       (leftmost '((potato) (chips ((with)
+		       fish) (chips)))))
+
+  (lisp-unit:assert-eq 'hot (leftmost '(((hot) (tuna (and))) cheese)))
+
+  (lisp-unit:assert-true (eqlistp '(strawberry ice cream) '(strawberry
+				  ice cream)))
+
+  (lisp-unit:assert-false (eqlistp '(strawberry ice cream) '(strawberry
+				  cream ice)))
+
+  (lisp-unit:assert-false (eqlistp '(banana ((split)))
+				   '((banana) (split))))
+
+  (lisp-unit:assert-false (eqlistp '(beef ((sausage)) (and (soda)))
+				   '(beef ((salami)) (and (soda)))))
+
+  (lisp-unit:assert-true (eqlistp '(beef ((sausage)) (and (soda)))
+				   '(beef ((sausage)) (and (soda)))))
+  
+  
+  
   
   )
 
