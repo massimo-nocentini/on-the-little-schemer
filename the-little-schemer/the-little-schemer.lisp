@@ -557,6 +557,20 @@ How many times divisor is in dividend space?"
 					       (cdr
 						(cdr aexp)))))) ) )
 
+(defun 1st-sub-exp (aexp)
+  (car (cdr aexp)) )
+
+(defun 2nd-sub-exp (aexp)
+  (car (cdr (cdr aexp))) )
+
+(defun operator (aexp)
+  (car aexp) )
+
+;; using help function to hide representation we are able to focus on
+;; the recursive definition of our concept. The help function allow in
+;; a second moment to use the representation that is the more suitable
+;; for the needs. We can therefore write a triple of help functions
+;; for each representation that we have to deal with.
 (defun tls-value (nexp)
   "Contract: numbered-expression -> number"
   (cond
@@ -564,10 +578,32 @@ How many times divisor is in dividend space?"
 					;because it is an atom and, by
 					;contract, it is a number so
 					;it is its value too.
-    ((eq '+ (car (cdr nexp))) (o+ (tls-value (car nexp))
-				  (tls-value (car (cdr (cdr nexp))))))
-    ((eq 'x (car (cdr nexp))) (x (tls-value (car nexp))
-				  (tls-value (car (cdr (cdr nexp))))))
-    (t (expt (tls-value (car nexp))
-	     (tls-value (car (cdr (cdr nexp)))))) ) )
+    ((eq '+ (operator nexp)) (o+ (tls-value (1st-sub-exp nexp))
+			    (tls-value (2nd-sub-exp nexp))))
+    ((eq 'x (operator nexp)) (x (tls-value (1st-sub-exp nexp))
+			   (tls-value (2nd-sub-exp nexp))))
+    (t (expt (tls-value (1st-sub-exp nexp))
+	     (tls-value (2nd-sub-exp nexp)))) ) )
+
+(defun serop (n)
+  "Contract: list-of-empty-lists -> boolean"
+  (null n))
+
+(defun edd1 (n)
+  "contract: list-of-empty-lists -> list-of-empty-lists"
+  (cons '() n))
+
+(defun zub1 (n)
+  "contract: list-of-empty-lists -> list-of-empty-lists"
+  (cdr n) )
+
+(defun os+ (n m)
+  "contract: list-of-empty-lists list-of-empty-lists -> list-of-empty-lists"
+  (cond
+    ((serop m) n)
+    (t (edd1 (os+ n (zub1 m)))) ) )
+
+
+
+
   
