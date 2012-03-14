@@ -541,4 +541,33 @@ How many times divisor is in dividend space?"
     (t (and (equal-sexps (car l1) (car l2))
 	    (eqlistp (cdr l1) (cdr l2)))) ) )
 
+
+(defun rember-sexp-version (sexp l)
+  "Contract: sexp list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))
+    ((equal-sexps sexp (car l)) (cdr l))
+    (t (cons (car l) (rember-sexp-version sexp (cdr l))))))
+
+(defun numberedp (aexp)
+  "Contract: arithmetic-expression -> boolean"
+  (cond
+    ((atomp aexp) (numberp aexp))
+    (t (and (numberedp (car aexp)) (numberedp (car
+					       (cdr
+						(cdr aexp)))))) ) )
+
+(defun tls-value (nexp)
+  "Contract: numbered-expression -> number"
+  (cond
+    ((atomp nexp) nexp)			;we can return the nexp
+					;because it is an atom and, by
+					;contract, it is a number so
+					;it is its value too.
+    ((eq '+ (car (cdr nexp))) (o+ (tls-value (car nexp))
+				  (tls-value (car (cdr (cdr nexp))))))
+    ((eq 'x (car (cdr nexp))) (x (tls-value (car nexp))
+				  (tls-value (car (cdr (cdr nexp))))))
+    (t (expt (tls-value (car nexp))
+	     (tls-value (car (cdr (cdr nexp)))))) ) )
   

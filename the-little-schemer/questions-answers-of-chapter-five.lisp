@@ -66,6 +66,25 @@
   (lisp-unit:assert-true (eqlistp '(beef ((sausage)) (and (soda)))
 				   '(beef ((sausage)) (and (soda)))))
   
+  (lisp-unit:assert-equal '(lettuce and tomato)
+     (rember-sexp-version 'bacon '(bacon lettuce and tomato)))
+
+  (lisp-unit:assert-equal '(bacon lettuce tomato)
+     (rember-sexp-version 'and '(bacon lettuce and tomato)))
+
+  (lisp-unit:assert-equal '(soy and tomato sauce)
+     (rember-sexp-version 'sauce '(soy sauce and tomato sauce)))
+
+  (lisp-unit:assert-equal '(bacon)
+     (rember-sexp-version '(lettuce (and tomato)) '(bacon (lettuce (and
+     tomato)))))
+
+  ;; searching for the empty list to be removed we got the wrong
+  ;; result
+
+  ;; (lisp-unit:assert-equal '(soy and tomato sauce)
+  ;; (rember-sexp-version '() '(soy () sauce and tomato sauce)))
+  
   
   
   
