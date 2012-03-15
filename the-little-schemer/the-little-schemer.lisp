@@ -15,7 +15,7 @@ doesn't contain any lists, nil otherwise."
   "This function return true if the argument A is a member of the list LAT"
   (cond
     ((null lat) nil)
-    (t (or (eq a
+    (t (or (equal-sexps a
 	       (car lat))
 	   (memberp a (cdr lat))))))
 
@@ -86,13 +86,11 @@ This function, given an atom A and a list LAT, return a new list that
 doesn't contain any atom A."
   (cond
     ((null lat) (quote ()))
-    ((eq a (car lat)) (multirember a (cdr lat))) ;we recur on the (cdr
-						 ;lat) because what we
-						 ;want is the
-						 ;remainder of the
-						 ;list such that
-						 ;doesn't contains any
-						 ;'a
+    ((equal-sexps a (car lat))
+     (multirember a (cdr lat))) ;we recur on the (cdr lat) because
+				;what we want is the remainder of the
+				;list such that doesn't contains any
+				;'a
     (t (cons			;here we know that (car lat) is not
 				;equal to the element to remove, so we
 				;have to save it building a cons
@@ -602,6 +600,76 @@ How many times divisor is in dividend space?"
   (cond
     ((serop m) n)
     (t (edd1 (os+ n (zub1 m)))) ) )
+
+(defun setp (lat)
+  "contract: list-of-atom -> boolean"
+  (cond
+    ((null lat) t)
+    ((memberp (car lat) (cdr lat)) nil)
+    (t (setp (cdr lat)))))
+
+(defun makeset (lat)
+  "contract: list-of-atom -> list-of-atom
+
+This variation use the function MEMBERP as help function."
+  (cond
+    ((null lat) (quote ()))
+    ((memberp (car lat) (cdr lat)) (makeset (cdr lat)) )
+    (t (cons (car lat) (makeset (cdr lat)))) ) )
+
+(defun makeset-variation (lat)
+  "contract: list-of-atom -> list-of-atom
+
+This variation use the function MULTIREMBER as help function."
+  (cond
+    ((null lat) (quote ()))
+    (t (cons (car lat) (makeset-variation
+			(multirember (car lat)
+				     lat) ;here we can improve using
+					  ;(cdr lat) to make one less
+					  ;remove, that is the (car
+					  ;lat) itself
+			))) ) )
+
+(defun tls-subsetp (set1 set2)
+  "contract: set set -> boolean"
+  (cond
+    ((null set1) t)			;because the empty set is a
+					;subset of every set
+					;(included, of course, the
+					;empty set itself!)
+    (t (and (memberp (car set1) set2)
+	    (tls-subsetp (cdr set1) set2))) ) )
+
+(defun eqsetp (set1 set2)
+  "contract: set set -> boolean"
+  (and (tls-subsetp set1 set2)
+       (tls-subsetp set2 set1))
+  )
+
+(defun intersectp (set1 set2)
+  "contract: set set -> boolean"
+  (cond
+    ((null set1) nil)			;an empty set hasn't any
+					;element that can share with
+					;any other set
+    (t (or (memberp (car set1) set2)
+	   (intersectp (cdr set1) set2))) ) )
+
+(defun intersect (set1 set2)
+  "contract: set set -> set"
+  (cond
+    ((null set1) (quote ()))
+    ((memberp (car set1) set2) (cons (car set1)
+				     (intersect (cdr set1) set2)))
+    (t (intersect (cdr set1) set2))) )
+
+(defun tls-union (set1 set2)
+  "contract: set set -> set"
+  (cond
+    ((null set1) set2)
+    ((memberp (car set1) set2) (tls-union (cdr set1) set2))
+    (t (cons (car set1) (tls-union (cdr set1) set2))) ) )
 
 
 
