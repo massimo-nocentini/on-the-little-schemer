@@ -671,7 +671,78 @@ This variation use the function MULTIREMBER as help function."
     ((memberp (car set1) set2) (tls-union (cdr set1) set2))
     (t (cons (car set1) (tls-union (cdr set1) set2))) ) )
 
+(defun tls-set-difference (set1 set2)
+  "contract: set set -> set"
+  (cond
+    ((null set1) (quote ()))
+    ((memberp (car set1) set2) (tls-set-difference (cdr set1) set2))
+    (t (cons (car set1) (tls-set-difference (cdr set1) set2))) ) )
 
+(defun intersect-all (l-set)
+  "contract: list-of-set -> list-of-atom"
+  (cond
+    ((null (cdr l-set)) (car l-set))	;(car l-set) is a set by contract
+    (t (intersect (car l-set) (intersect-all (cdr l-set)))) ) )
+
+(defun pairp (sexp)
+  "contract: list-of-sexp -> boolean"
+  (cond
+    ((atomp sexp) nil)			;this condition is necessary
+					;because the recursive
+					;definition of sexp allow to
+					;be an atom or a list of sexp
+    ((null sexp) nil)			;if this is true then sexp is
+					;the empty list
+    ((null (cdr sexp)) nil)		;if this is true then sexp
+					;contains only one element
+    ((null (cdr (cdr sexp))) t)		;if this is true then sexp is
+					;really a pair
+    (t nil) ))				;otherwise sexp have at least
+					;three elements
+
+(defun pair-first-component (pair)
+  "contract: pair -> sexp"
+  (car pair) )
+
+(defun pair-second-component (pair)
+  "contract: pair -> sexp"
+  (car (cdr pair)) )
+
+(defun build-pair (s1 s2)
+  "contract: sexp sexp -> pair"
+  (cons s1 (cons s2 (quote ()))))
+
+(defun relationp (l-sexp)
+  "contract: list-of-sexp -> boolean"
+  (and (setp l-sexp) (all-pair-in-list-p l-sexp))
+  )
+
+(defun all-pair-in-list-p (l-sexp)
+  "contract: list-of-sexp -> boolean"
+  (cond
+    ((null l-sexp) t)
+    (t (and (pairp (car l-sexp)) (all-pair-in-list-p (cdr l-sexp)))) )
+    )
+
+(defun tls-functionp (rel)
+  "contract: relation -> boolean"
+  (setp (firsts rel)) )
+
+(defun revrel (rel)
+  "contract: relation -> relation"
+  (cond
+    ((null rel) (quote ()))
+    (t (cons (revpair (car rel))
+	     (revrel (cdr rel)))) ) )
+
+(defun revpair (pair)
+  "contract: pair -> pair"
+  (build-pair (pair-second-component pair)
+	      (pair-first-component pair)) )
+
+(defun fullfunp (fun)
+  "contract: function -> boolean"
+  (tls-functionp (revrel fun)) )
 
 
   
