@@ -744,5 +744,71 @@ This variation use the function MULTIREMBER as help function."
   "contract: function -> boolean"
   (tls-functionp (revrel fun)) )
 
+(defun rember-f (test-function)
+  "contract: (lambda: sexp sexp -> boolean) ->
+                (lambda: sexp list-of-sexp -> list-of-sexp)"
+  (function
+   (lambda (a l)
+    (cond
+      ((null l) (quote ()))
+      ((funcall test-function a (car l)) (cdr l))
+      (t (cons (car l)
+	       (funcall (rember-f test-function) a (cdr l))))))))
+
+(defun eq?-c (a)
+  "contract: atom -> (lambda: atom -> boolean)"
+  (function (lambda (x) (eq x a))) )
+
+(defun insert-l-f (test-function)
+  "contract: (lambda: sexp sexp -> boolean) -> (lambda: sexp sexp
+list-of-sexp -> list-of-sexp)"
+  (insert-g test-function
+	    (lambda (new old l)
+  "contract: sexp sexp list-of-sexp -> list-of-sexp"
+  (cons new (cons old l)) )))
+
+   
+;; this functions that takes a lambda (aka: a function) as parameter,
+;; return some lambdas and NOT take a mix of atoms, lists and
+;; lambdas. They take lambdas and return lambdas, no mix with other
+;; elements.
+(defun insert-r-f (test-function)
+  "contract: (lambda: sexp sexp -> boolean) -> (lambda: sexp sexp
+list-of-sexp -> list-of-sexp)"
+  (insert-g test-function
+	    (lambda (new old l)
+  "contract: sexp sexp list-of-sexp -> list-of-sexp"
+  (cons old (cons new l)) )))
+
+(defun insert-g (test-lambda consing-lambda)
+  "contract: (lambda: sexp sexp -> boolean) (lambda: sexp sexp
+list-of-sexp -> list-of-sexp) -> (lambda: sexp sexp list-of-sexp ->
+list-of-sexp)"
+  (function (lambda (new old l)
+    (cond
+      ((null l) (quote ()))
+      ((funcall test-lambda old (car l))
+       (funcall consing-lambda new old (cdr l)))
+      (t (cons (car l)
+	       (funcall (insert-g test-lambda consing-lambda) new
+			old (cdr l)))) ) ) ))
+
+(defun subst-f (test-lambda)
+  "contract: (lambda: sexp sexp -> boolean) -> (lambda: sexp sexp
+  list-of-sexp -> list-of-sexp)"
+  (insert-g test-lambda (lambda (new old l)
+			  (cons new l))) )
+
+(defun rember-f-final (test-lambda)
+  "contract: (lambda: sexp sexp -> boolean) -> (lambda: sexp sexp
+  list-of-sexp -> list-of-sexp)"
+  (insert-g test-lambda (lambda (new old l) l) ;just return the list,
+					       ;ignore NEW and OLD
+	    ) )
+
+
+
+
+
 
   
