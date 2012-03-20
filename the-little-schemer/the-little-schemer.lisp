@@ -574,14 +574,11 @@ How many times divisor is in dividend space?"
   (cond
     ((atomp nexp) nexp)			;we can return the nexp
 					;because it is an atom and, by
-					;contract, it is a number so
-					;it is its value too.
-    ((eq '+ (operator nexp)) (o+ (tls-value (1st-sub-exp nexp))
-			    (tls-value (2nd-sub-exp nexp))))
-    ((eq 'x (operator nexp)) (x (tls-value (1st-sub-exp nexp))
-			   (tls-value (2nd-sub-exp nexp))))
-    (t (expt (tls-value (1st-sub-exp nexp))
-	     (tls-value (2nd-sub-exp nexp)))) ) )
+					;contract, it is also a number
+					;so it is its value too.
+    (t (funcall (atom-to-function (operator nexp))
+		(tls-value (1st-sub-exp nexp))
+		(tls-value (2nd-sub-exp nexp)))) ) )
 
 (defun serop (n)
   "Contract: list-of-empty-lists -> boolean"
@@ -806,8 +803,152 @@ list-of-sexp)"
 					       ;ignore NEW and OLD
 	    ) )
 
+(defun atom-to-function (atom)
+  "Contract: atom -> (lambda: number number -> number)"
+  (cond
+    ((eq atom (quote +)) (function o+))
+    ((eq atom (quote x)) (function x))
+    (t (function expt))) )
 
+(defun multi-rember-f (test)
+  "contract: (lambda: sexp sexp -> boolean) -> (lambda: sexp
+  list-of-sexp -> list-of-sexp)"
+  (lambda (a lat)
+    (cond
+      ((null lat) (quote ()))
+      ((funcall test a (car lat)) (funcall (multi-rember-f test)
+					   a (cdr lat)))
+      (t (cons (car lat)
+	       (funcall (multi-rember-f test) a (cdr lat)))) )) )
 
+(defun multi-rember-t (test l)
+  "contract: (lambda: sexp -> boolean) list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))
+    ((funcall test (car l)) (multi-rember-t test (cdr l)))
+    (t (cons (car l) (multi-rember-t test (cdr l))))) )
+
+(defun multi-rember&co (a lat col)
+  "contract: atom list-of-atom (lambda: list-of-atom list-of-atom ->
+  object) -> object"
+  (cond
+    ((null lat) (funcall col
+			 (quote ())
+			 (quote ())))
+    ((eq a (car lat)) (multi-rember&co a
+				       (cdr lat)
+				       (lambda (newl seen)
+					 (funcall col
+						  newl
+						  (cons a seen)))))
+    (t (multi-rember&co a
+			(cdr lat)
+			(lambda (newl seen)
+			  (funcall col
+				   (cons (car lat) newl)
+				   seen)))) ) )
+
+(defun multi-insert-lr (new oldl oldr lat)
+  "contract: atom atom atom list-of-atom -> list-of-atom"
+  (cond
+    ((null lat) (quote ()))
+    ((eq (car lat) oldl) (cons new
+			       (cons oldl
+				     (multi-insert-lr new oldl
+						      oldr (cdr
+						      lat)))))
+    ((eq (car lat) oldr) (cons oldr
+			       (cons new
+				     (multi-insert-lr new oldl
+						      oldr (cdr
+						      lat)))))
+    (t (cons (car lat) (multi-insert-lr new oldl oldr (cdr lat)))) ) )
+
+(defun multi-insert-lr&co (new oldl oldr lat col) ;label:**
+  "contract: atom atom atom list-of-atom (lambda: list-of-atom number
+number object) -> object"
+  (cond
+    ((null lat) (funcall col (quote ()) 0 0))
+    ((eq (car lat) oldl)
+     (multi-insert-lr&co		;label:*
+      new oldl oldr (cdr lat)
+      (lambda (newlat l r)		;these argument are the
+					;results of the induction
+					;call, that is the recursion
+					;invocation of ref:*
+	(funcall col			;here we invoke the collector
+					;for the actual computation
+					;ref:**, consing and adding
+					;something because in this
+					;cond's branch we know
+					;something (in this case that
+					;the (eq (car lat) oldl)),
+					;hence we cons the appropriate
+					;sequence of oldl and new and
+					;increment the left-insertion
+					;counter
+		 (cons new (cons oldl newlat))
+		 (1+ l)
+		 r))))
+    ((eq (car lat) oldr)
+     (multi-insert-lr&co
+      new oldl oldr (cdr lat)
+      (lambda (newlat l r)
+	(funcall col
+		 (cons oldr (cons new newlat))
+		 l
+		 (1+ r)))) )
+    (t (multi-insert-lr&co
+	new oldl oldr (cdr lat)
+	(lambda (newlat l r)
+	  (funcall col
+		   (cons (car lat) newlat) l r)))) ) )
+
+(defun tls-evenp (n)
+  "contract: number -> boolean"
+  (our-equal (x (integer-division n 2) 2) n) )
+
+(defun evens-only* (l)
+  "contract: list-of-sexp -> list-of-sexp"
+  (cond
+    ((null l) (quote ()))
+    ((atomp (car l))
+     (cond
+       ((tls-evenp (car l)) (cons (car l) (evens-only* (cdr l))))
+       (t (evens-only* (cdr l)))))
+    (t (cons (evens-only* (car l))
+	     (evens-only* (cdr l)))) ) )
+
+(defun evens-only*&co (l col)
+  "contract: list-of-sexp (lambda: list-of-sexp number number ->
+  object) -> object"
+  (cond
+    ((null l) (funcall col (quote ()) 1 0))
+    ((atomp (car l))
+     (cond
+       ((tls-evenp (car l))
+	(evens-only*&co (cdr l)
+			(lambda (newl prod sum)
+			  (funcall col
+				   (cons (car l) newl)
+				   (x prod (car l))
+				   sum))))
+       (t (evens-only*&co (cdr l)
+			  (lambda (newl prod sum)
+			    (funcall col
+				     newl
+				     prod
+				     (o+ sum (car l))))))))
+    (t (evens-only*&co (car l)
+		       (lambda (car-list car-prod car-sum)
+			 (evens-only*&co (cdr l)
+					 (lambda (cdr-list cdr-prod cdr-sum)
+					   (funcall col
+						    (cons car-list cdr-list)
+						    (x car-prod cdr-prod)
+						    (o+ car-sum
+							cdr-sum))))))))
+							)
 
 
 
