@@ -136,7 +136,10 @@
 						  (cons odd-prod
 						  l)))))
 
-  
+  (lisp-unit:assert-equal (quote (3 tea see Cecina))
+			  (funcall (multi-rember-single-param (eq?-c 'spider))
+				   (quote (3 spider tea see spider
+				   Cecina))))
   
   
   

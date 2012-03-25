@@ -828,6 +828,24 @@ list-of-sexp)"
     ((funcall test (car l)) (multi-rember-t test (cdr l)))
     (t (cons (car l) (multi-rember-t test (cdr l))))) )
 
+(defun multi-rember-single-param (test)
+  "contract: (lambda: sexp -> boolean) -> (lambda: list-of-sexp ->
+  list-of-sexp)"
+  (lambda (l)
+    (cond
+      ((null l) (quote ()))
+      ((funcall test (car l))		;here we do Curry-ing on the
+					;function TEST: this function
+					;is passed as argument in
+					;multi-rember-single-param
+					;function, it isn't defined in
+					;the current lambda definition
+       (funcall (multi-rember-single-param test)
+		(cdr l)))
+      (t (cons (car l)
+	       (funcall (multi-rember-single-param test)
+			(cdr l)))))) )
+
 (defun multi-rember&co (a lat col)
   "contract: atom list-of-atom (lambda: list-of-atom list-of-atom ->
   object) -> object"
@@ -950,6 +968,33 @@ number object) -> object"
 							cdr-sum))))))))
 							)
 
+(defun looking (a lat)
+  "contract: atom list-of-atom -> boolean"
+  (start-looking a (make-getting lat)))
 
+(defun start-looking (a getting-lambda)
+  "contract: atom (lambda: number -> atom) -> boolean"
+  (keep-looking a (funcall getting-lambda 1) getting-lambda) )
 
-  
+(defun make-getting (lat)
+  "contract: list-of-atom -> (lambda: number -> atom)
+
+The lambda returned do curry-ing on the LAT argument. In this way we
+hide the collection we take elements from"
+  (lambda (number)
+    (our-pick number lat)))
+
+;; from this definition we see that lat is used only in one branch of
+;; cond questions. We can refactor it, passing a function that hide
+;; the argument LAT to the rest of the function (we'll remove it from
+;; the argument list)
+(defun keep-looking-to-refactor (a nora lat)
+  (cond
+    ((numberp nora) (keep-looking a (our-pick nora lat) lat))
+    (t (eq a nora))))
+
+(defun keep-looking (a sorn getting)
+  "contract: atom atom (lambda: number -> atom) -> boolean"
+  (cond
+    ((numberp sorn) (keep-looking a (funcall getting sorn) getting))
+    (t (eq a sorn)) ) )
