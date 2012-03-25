@@ -988,13 +988,90 @@ hide the collection we take elements from"
 ;; cond questions. We can refactor it, passing a function that hide
 ;; the argument LAT to the rest of the function (we'll remove it from
 ;; the argument list)
-(defun keep-looking-to-refactor (a nora lat)
+(defun keep-looking-to-refactor (a sorn lat)
   (cond
-    ((numberp nora) (keep-looking a (our-pick nora lat) lat))
-    (t (eq a nora))))
+    ((numberp sorn) (keep-looking a (our-pick sorn lat) lat))
+    (t (eq a sorn))))
 
 (defun keep-looking (a sorn getting)
   "contract: atom atom (lambda: number -> atom) -> boolean"
   (cond
     ((numberp sorn) (keep-looking a (funcall getting sorn) getting))
     (t (eq a sorn)) ) )
+
+(defun eternity (x)
+  (eternity x))
+
+(defun shift-pair (p)
+  "contract: pair -> pair
+such that (pair-first-component p) is a pair"
+  (build-pair (pair-first-component (pair-first-component p))
+	      (build-pair (pair-second-component (pair-first-component p))
+			  (pair-second-component p))) )
+
+(defun align (pora)
+  "contract: (pair | atom) -> pair"
+  (cond
+    ((atomp pora) pora)
+    ((pairp (pair-first-component pora)) (align (shift-pair pora)))
+    (t (build-pair (pair-first-component pora)
+		   (align (pair-second-component pora)))) ) )
+
+(defun count-atoms-in-pair (pair)
+  "contract: pair -> number"
+  (cond
+    ((atomp pair) 1)
+    (t (o+ (count-atoms-in-pair (pair-first-component pair))
+	   (count-atoms-in-pair (pair-second-component pair))))) )
+
+(defun pair-weight (pair)
+  "contract: pair -> number"
+  (cond
+    ((atom pair) 1)
+    (t (o+ (x 2 (pair-weight (pair-first-component pair)))
+	   (pair-weight (pair-second-component pair))))) )
+
+(defun pair-shuffle (pora)
+  "contract: (pair | atom) -> pair"
+  (cond
+    ((atomp pora) pora)
+    ((pairp (pair-first-component pora)) (pair-shuffle (revpair pora)))
+    (t (build-pair (pair-first-component pora)
+		   (pair-shuffle (pair-second-component pora)))) ) )
+
+(defun collatz (n col)
+  "contract: number (lambda: number list-of-number -> object) ->
+object"
+  (cond
+    ((onep n) (funcall col 1 (cons n (quote ())))) ;in this case we
+						   ;have only the
+						   ;current invocation
+    ((tls-evenp n) (collatz (integer-division n 2)
+			    (lambda (times seen-numbers)
+			      (funcall col (1+ times) (cons n seen-numbers)))))
+    (t (collatz (1+ (x n 3))
+		(lambda (times seen-numbers)
+		  (funcall col (1+ times) (cons n seen-numbers)))))) )
+
+(defun ackermann (n m col)
+  "contract: number number (lambda: number list-of-pair -> object) ->
+object"
+  (cond
+    ((zerop n) (funcall col 1 (cons (build-pair n (1+ m))
+				    (quote ()))))
+    ((zerop m) (ackermann (1- n) 1
+			  (lambda (times pairs)
+			    (funcall col
+				     (1+ times)
+				     (cons (build-pair n m)
+					   pairs)))))
+    (t (ackermann (1- n) (ackermann n (1- m)
+				    (lambda (times pairs)
+				      (funcall col
+					       (1+ times)
+					       (cons (build-pair n m)
+					       pairs))))
+		  (lambda (times pairs)
+		    (funcall col
+			     (1+ times)
+			     (cons (build-pair n m) pairs))))) ) )
