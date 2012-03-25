@@ -1053,12 +1053,21 @@ object"
 		(lambda (times seen-numbers)
 		  (funcall col (1+ times) (cons n seen-numbers)))))) )
 
+;; ... a(1 59) c(1 58) (0 59) (0 . 60) ...
+;; ... a(1 59) b(0 60) (0 . 61) ...
+
+;; in order to compute the Ackermann value for the pair a(1 59) we
+;; need to look at its right first (mimic the bottom definition) which
+;; in turn needs the value of c(1 58). Hence for a(1 59) we need b(0
+;; 60) which, in nested fashion, needs c(1 58).
 (defun ackermann (n m col)
   "contract: number number (lambda: number list-of-pair -> object) ->
 object"
   (cond
-    ((zerop n) (funcall col 1 (cons (build-pair n (1+ m))
-				    (quote ()))))
+    ((zerop n) (progn (funcall col 1 (cons (build-pair n m)
+					   (cons (cons n (1+ m))
+						 (quote ()))))
+		      (1+ m)) )
     ((zerop m) (ackermann (1- n) 1
 			  (lambda (times pairs)
 			    (funcall col

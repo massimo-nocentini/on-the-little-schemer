@@ -27,36 +27,29 @@
 
   (lisp-unit:assert-equal 2
 			  (ackermann 1 0
-				     (lambda (times pairs)
-				       (print (cons pairs times))
-				       (pair-second-component
-					(car (reverse pairs))))))
+				     (lambda (times
+				     pairs) (print (cons pairs
+				     times)))))
 
   (lisp-unit:assert-equal 3 
 			  (ackermann 1 1
-				     (lambda (times pairs)
-				       (print (cons pairs times))
-				       (pair-second-component
-					(car (reverse pairs))))))
+				     (lambda (times
+				     pairs) (print (cons pairs
+				     times)))))
   (lisp-unit:assert-equal 7
 			  (ackermann 2 2
-				     (lambda (times pairs)
-				       (print (cons pairs times))
-				       (pair-second-component
-					(car (reverse pairs))))))
+				       (lambda (times
+				     pairs) (print (cons pairs
+				     times)))))
 
   (lisp-unit:assert-equal 9
 			  (ackermann 2 3
-				     (lambda (times pairs)
-				       (print (cons pairs times))
-				       (pair-second-component
-					(car (reverse pairs))))))
+				     (lambda (times
+				     pairs) (print (cons pairs
+				     times)))))
 
   (lisp-unit:assert-equal 61
-			  (ackermann 3 3
-				     (lambda (times pairs)
-				       (print (cons pairs times))
-				       (pair-second-component
-					(car (reverse pairs)))))) )  
+			  (ackermann 3 3 (lambda (times
+			  pairs) (print (cons pairs times)))))
 
 )
