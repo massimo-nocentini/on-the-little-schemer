@@ -1084,3 +1084,268 @@ object"
 		    (funcall col
 			     (1+ times)
 			     (cons (build-pair n m) pairs))))) ) )
+
+(defun eternity-length (l)
+  "contract: list-of-sexp -> number"
+  (cond
+    ((null l) 0)
+    (t (1+ (funcall 
+	    (lambda (l)				;this lambda computes
+						;the length of a
+						;function with at most
+						;one element
+	      (cond
+		((null l) 0)
+		(t (1+ (funcall
+			(lambda (l) 		;here we replace the
+						;definition of
+						;length-0 because it
+						;cannot be defuned
+			  (cond
+			    ((null l) 0)
+			    (t (1+ (eternity
+				    (cdr l))))))
+			(cdr l)) ))))
+	    (cdr l)) ))) )
+
+(defun length-lambda-factory (length-lambda)
+  "contract: (lambda: list-of-sexp -> number) -> (lambda: list-of-sexp
+  -> number)"
+  (lambda (l)
+    (cond
+      ((null l) 0)
+      (t (1+ (funcall length-lambda (cdr l)))))) )
+
+(defun make-length-zero-lambda-before-refactor ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall length-lambda (cdr l)))))) )
+	   (function eternity)) )
+
+(defun make-length-zero-lambda-refactored ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      (function eternity)))
+	   (lambda (some-length-function)
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall some-length-function (cdr l)))))) ) ) )
+
+(defun make-length-zero-lambda ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      make-length-lambda )) ;here we don't need to get
+					    ;the function because
+					    ;make-length-lambda is
+					    ;already the function to
+					    ;use
+	   (lambda (make-length-lambda)	    ;using this name for the
+					    ;argument we have a
+					    ;remainder that the first
+					    ;argument of
+					    ;make-length-lambda
+					    ;(because this is what
+					    ;this lambda is!) is
+					    ;make-length-lambda
+					    ;itself!
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 ;; the following invocation (funcall
+		 ;; make-length-lambda (cdr l)) doesn't work because
+		 ;; make-length-lambda expect a lambda as argument,
+		 ;; while here we provide (cdr l): the only case that
+		 ;; it works is that (cdr l) is a lambda but this is
+		 ;; impossible because if l is a non-empty list, (cdr
+		 ;; l) is a list, by the Law of Cdr!
+		 (t (1+ (funcall make-length-lambda (cdr l)))))) ) ) )
+
+(defun make-length ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      make-length-lambda )) 
+	   (lambda (make-length-lambda)	    
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall
+			 ;; Could we do this more than once?  Yes,
+			 ;; just keep passing make-length-lambda to
+			 ;; itself, and we can do this as often as we
+			 ;; need to! How does it work? It keeps adding
+			 ;; recursive uses by passing
+			 ;; make-length-lambda to itself, just as it
+			 ;; is about to expire.
+			 (funcall make-length-lambda
+				  make-length-lambda)
+			 (cdr l)))))) ) ) )
+
+
+(defun make-length-at-most-one-with-mklength ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      make-length-lambda )) ;here we don't need to get
+					    ;the function because
+					    ;make-length-lambda is
+					    ;already the function to
+					    ;use
+	   (lambda (make-length-lambda)	    ;using this name for the
+					    ;argument we have a
+					    ;remainder that the first
+					    ;argument of
+					    ;make-length-lambda
+					    ;(because this is what
+					    ;this lambda is!) is
+					    ;make-length-lambda
+					    ;itself!
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall
+			 (funcall make-length-lambda
+				  ;; fixing this function we build a
+				  ;; lambda that at the second
+				  ;; invocation build another lambda
+				  ;; that has the ETERNITY function
+				  ;; hardcoded, so the entire
+				  ;; make-length-at-most-one-with-mklength
+				  ;; will handle only list of at most
+				  ;; one argument
+				  (function eternity))
+			 (cdr l))))))) ) )
+
+(defun make-length-at-most-one-lambda-before-refactor ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall
+   (lambda (length-lambda)
+     "contract: (lambda: list-of-sexp -> number) -> (lambda: list-of-sexp
+  -> number)"
+     (lambda (l)
+       (cond
+	 ((null l) 0)
+	 (t (1+ (funcall length-lambda (cdr l)))))) )   
+   (funcall				;the result of this function
+					;call is passed as argument to
+					;the above function call
+    (lambda (length-lambda)
+      "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+      (lambda (l)
+	(cond
+	  ((null l) 0)
+	  (t (1+ (funcall length-lambda (cdr l)))))))
+    (function eternity)			;this function is passed as
+					;argument to the strictly
+					;above lambda
+    ) ))
+
+(defun make-length-at-most-one-lambda ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      (funcall make-length-lambda
+			       (function eternity))))
+	   (lambda (some-length-function)
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall some-length-function (cdr l)))))) ) ) )
+
+(defun make-length-at-most-two-lambda-before-refactor ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall
+   (lambda (length-lambda)
+     "contract: (lambda: list-of-sexp -> number) -> (lambda: list-of-sexp
+  -> number)"
+     (lambda (l)
+       (cond
+	 ((null l) 0)
+	 (t (1+ (funcall length-lambda (cdr l)))))) )   
+   (funcall
+    (lambda (length-lambda)
+      "contract: (lambda: list-of-sexp -> number) -> (lambda: list-of-sexp
+  -> number)"
+      (lambda (l)
+	(cond
+	  ((null l) 0)
+	  (t (1+ (funcall length-lambda (cdr l)))))) )   
+    (funcall				;the result of this function
+					;call is passed as argument to
+					;the above function call
+     (lambda (length-lambda)
+       "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+       (lambda (l)
+	 (cond
+	   ((null l) 0)
+	   (t (1+ (funcall length-lambda (cdr l)))))))
+     (function eternity)			;this function is passed as
+					;argument to the strictly
+					;above lambda
+     ) )))
+
+(defun make-length-at-most-two-lambda ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      (funcall make-length-lambda
+			       (funcall make-length-lambda
+					(function eternity)))))
+	   (lambda (some-length-function)
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall some-length-function (cdr l)))))) ) ) )
+
+(defun make-length-at-most-three-lambda ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      (funcall make-length-lambda
+			       (funcall make-length-lambda
+					(funcall make-length-lambda
+						 (function
+						 eternity))))))
+	   (lambda (some-length-function)
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (lambda (l)
+	       (cond
+		 ((null l) 0)
+		 (t (1+ (funcall some-length-function (cdr l)))))) ) ) )
