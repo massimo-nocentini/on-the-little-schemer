@@ -52,43 +52,43 @@
 			  (ackermann 3 3 (lambda (times
 			  pairs) (print (cons pairs times)))))
 
-  (lisp-unit:assert-eq 0 (funcall (make-length-zero-lambda ) '()))
+  ;; (lisp-unit:assert-eq 0 (funcall (make-length-zero-lambda ) '()))
 
-  (lisp-unit:assert-eq 0 (funcall (make-length-at-most-one-lambda) '()))
-  (lisp-unit:assert-eq 1 (funcall (make-length-at-most-one-lambda)
-  '(j)))
+  ;; (lisp-unit:assert-eq 0 (funcall (make-length-at-most-one-lambda) '()))
+  ;; (lisp-unit:assert-eq 1 (funcall (make-length-at-most-one-lambda)
+  ;; '(j)))
 
-  (lisp-unit:assert-eq 0 (funcall
-			  (make-length-at-most-one-with-mklength ) '()))
-  (lisp-unit:assert-eq 1 (funcall
-			  (make-length-at-most-one-with-mklength )
-			  '(apples)))
+  ;; (lisp-unit:assert-eq 0 (funcall
+  ;; 			  (make-length-at-most-one-with-mklength ) '()))
+  ;; (lisp-unit:assert-eq 1 (funcall
+  ;; 			  (make-length-at-most-one-with-mklength )
+  ;; 			  '(apples)))
   
 
-  (lisp-unit:assert-eq 0 (funcall
-			  (make-length-at-most-two-lambda) '()))
-  (lisp-unit:assert-eq 1 (funcall
-			  (make-length-at-most-two-lambda) '(j)))
-  (lisp-unit:assert-eq 2 (funcall
-			  (make-length-at-most-two-lambda) '(j (a))))
+  ;; (lisp-unit:assert-eq 0 (funcall
+  ;; 			  (make-length-at-most-two-lambda) '()))
+  ;; (lisp-unit:assert-eq 1 (funcall
+  ;; 			  (make-length-at-most-two-lambda) '(j)))
+  ;; (lisp-unit:assert-eq 2 (funcall
+  ;; 			  (make-length-at-most-two-lambda) '(j (a))))
+
+  ;; (lisp-unit:assert-eq 0 (funcall
+  ;; 			  (make-length-at-most-three-lambda) '()))
+  ;; (lisp-unit:assert-eq 1 (funcall
+  ;; 			  (make-length-at-most-three-lambda) '(j)))
+  ;; (lisp-unit:assert-eq 2 (funcall
+  ;; 			  (make-length-at-most-three-lambda) '(j (a))))
+  ;; (lisp-unit:assert-eq 3 (funcall
+  ;; 			  (make-length-at-most-three-lambda) '(j (a) k)))
 
   (lisp-unit:assert-eq 0 (funcall
-			  (make-length-at-most-three-lambda) '()))
-  (lisp-unit:assert-eq 1 (funcall
-			  (make-length-at-most-three-lambda) '(j)))
-  (lisp-unit:assert-eq 2 (funcall
-			  (make-length-at-most-three-lambda) '(j (a))))
-  (lisp-unit:assert-eq 3 (funcall
-			  (make-length-at-most-three-lambda) '(j (a) k)))
-
-  (lisp-unit:assert-eq 0 (funcall
-			  (make-length) '()))
-  (lisp-unit:assert-eq 1 (funcall
-			  (make-length) '(j)))
-  (lisp-unit:assert-eq 2 (funcall
-			  (make-length) '(j (a))))
-  (lisp-unit:assert-eq 10 (funcall
-			  (make-length) '(0 1 2 3 4 5 6 7 8 9)))
+  			  (make-length) '()))
+  ;; (lisp-unit:assert-eq 1 (funcall
+  ;; 			  (make-length) '(j)))
+  ;; (lisp-unit:assert-eq 2 (funcall
+  ;; 			  (make-length) '(j (a))))
+  ;; (lisp-unit:assert-eq 10 (funcall
+  ;; 			  (make-length) '(0 1 2 3 4 5 6 7 8 9)))
 
   
   (lisp-unit:assert-eq 0 (eternity-length '()))

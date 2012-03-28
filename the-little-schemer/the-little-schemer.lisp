@@ -1176,7 +1176,7 @@ list-of-sexp -> number)"
 		 ;; l) is a list, by the Law of Cdr!
 		 (t (1+ (funcall make-length-lambda (cdr l)))))) ) ) )
 
-(defun make-length ()
+(defun make-length-but-not-seems-like-length ()
   "contract: -> (lambda: list-of-sexp -> number)"
   (funcall (lambda (make-length-lambda)   
 	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
@@ -1200,6 +1200,25 @@ list-of-sexp -> number)"
 			 (funcall make-length-lambda
 				  make-length-lambda)
 			 (cdr l)))))) ) ) )
+
+(defun make-length ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     (funcall make-length-lambda
+		      make-length-lambda )) 
+	   (lambda (make-length-lambda)
+	     (funcall
+	      (lambda (length)
+		(lambda (l)
+		  (cond
+		    ((null l) 0)
+		    (t (1+ (funcall length (cdr l)))))))
+	      (funcall make-length-lambda ;written in this way we have
+					  ;an infinite calls due to
+					  ;this funcall
+		       make-length-lambda)))))
+	      
+
 
 
 (defun make-length-at-most-one-with-mklength ()
