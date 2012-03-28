@@ -81,8 +81,10 @@
   ;; (lisp-unit:assert-eq 3 (funcall
   ;; 			  (make-length-at-most-three-lambda) '(j (a) k)))
 
-  (lisp-unit:assert-eq 0 (funcall
-  			  (make-length) '()))
+  ;; the following tests doesn't halt because of the invocation of
+  ;; make-lenght-lambda with argument itself  
+  ;; (lisp-unit:assert-eq 0 (funcall
+  ;; 			  (make-length) '()))
   ;; (lisp-unit:assert-eq 1 (funcall
   ;; 			  (make-length) '(j)))
   ;; (lisp-unit:assert-eq 2 (funcall
@@ -90,6 +92,56 @@
   ;; (lisp-unit:assert-eq 10 (funcall
   ;; 			  (make-length) '(0 1 2 3 4 5 6 7 8 9)))
 
+  ;; the following tests all pass because the invocation of the lambda
+  ;; make-length-lambda with argument himself is done only when
+  ;; needed, adding only one layer to the recursion tower.
+  (lisp-unit:assert-eq 0 (funcall
+  			  (make-length-but-not-seems-like-length)
+  			  '()))
+  (lisp-unit:assert-eq 1 (funcall
+  			  (make-length-but-not-seems-like-length)
+  			  '(j)))
+  (lisp-unit:assert-eq 2 (funcall
+  			  (make-length-but-not-seems-like-length)
+  			  '(j (a))))
+  (lisp-unit:assert-eq 10 (funcall
+			   (make-length-but-not-seems-like-length) '(0
+			   1 2 3 4 5 6 7 8 9)))
+
+  (lisp-unit:assert-eq 0 (funcall
+  			  (make-length-toward-soundness)
+  			  '()))
+  (lisp-unit:assert-eq 1 (funcall
+  			  (make-length-toward-soundness)
+  			  '(j)))
+  (lisp-unit:assert-eq 2 (funcall
+  			  (make-length-toward-soundness)
+  			  '(j (a))))
+  (lisp-unit:assert-eq 10 (funcall
+			   (make-length-toward-soundness) '(0 1 2 3 4
+			   5 6 7 8 9)))
+
+  (lisp-unit:assert-eq 0 (funcall
+  			  (make-length-toward-y-combinator)
+  			  '()))
+  (lisp-unit:assert-eq 1 (funcall
+  			  (make-length-toward-y-combinator)
+  			  '(j)))
+  (lisp-unit:assert-eq 2 (funcall
+  			  (make-length-toward-y-combinator)
+  			  '(j (a))))
+  (lisp-unit:assert-eq 10 (funcall
+			   (make-length-toward-y-combinator) '(0 1 2 3
+			   4 5 6 7 8 9)))
+
+  (lisp-unit:assert-eq 0 (length-y-combinator-powered '()))
+  (lisp-unit:assert-eq 1 (length-y-combinator-powered '(j)))
+  (lisp-unit:assert-eq 2 (length-y-combinator-powered '(j (a))))
+  (lisp-unit:assert-eq 10 (length-y-combinator-powered '(0 1 2 3 4 5 6
+							 7 8 9)))
+
+  
+  
   
   (lisp-unit:assert-eq 0 (eternity-length '()))
   (lisp-unit:assert-eq 1 (eternity-length '(j)))

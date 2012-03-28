@@ -1190,18 +1190,93 @@ list-of-sexp -> number)"
 	       (cond
 		 ((null l) 0)
 		 (t (1+ (funcall
-			 ;; Could we do this more than once?  Yes,
-			 ;; just keep passing make-length-lambda to
-			 ;; itself, and we can do this as often as we
-			 ;; need to! How does it work? It keeps adding
-			 ;; recursive uses by passing
+			 ;; TLS: "Could we do this more than once?
+			 ;; Yes, just keep passing make-length-lambda
+			 ;; to itself, and we can do this as often as
+			 ;; we need to! How does it work? It keeps
+			 ;; adding recursive uses by passing
 			 ;; make-length-lambda to itself, just as it
-			 ;; is about to expire.
+			 ;; is about to expire."  Me: with this
+			 ;; invocation we only build a new layer of
+			 ;; the recursion tower, because this
+			 ;; invocation return a lambda and doing this,
+			 ;; it doesn't make call like this, so this
+			 ;; invocation always halts.
 			 (funcall make-length-lambda
 				  make-length-lambda)
 			 (cdr l)))))) ) ) )
 
-(defun make-length ()
+(defun make-length-toward-soundness ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (make-length-lambda)   
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall make-length-lambda
+		      make-length-lambda )) 
+	   (lambda (make-length-lambda)	    
+	     "contract: (lambda: list-of-sexp -> number) -> (lambda:
+list-of-sexp -> number)"
+	     (funcall
+	      (lambda (length)
+		(lambda (l)
+		  (cond
+		    ((null l) 0)
+		    (t (1+ (funcall length (cdr l)))))) )
+	      (lambda (x)		;usign this extract-pattern we
+					;don't invoke
+					;make-length-lambda with
+					;argument itself directly as
+					;the wrong before versione,
+					;but we build only a lambda
+					;that potentially does that
+					;invocation
+		(funcall (funcall make-length-lambda ;from this
+						     ;funcall returns
+						     ;a lambda, by
+						     ;contract of
+						     ;make-length-lambda
+				  make-length-lambda)
+			 x))) )))
+
+(defun make-length-toward-y-combinator ()
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall
+   (lambda (le)
+     (funcall (lambda (make-length-lambda)   
+		(funcall make-length-lambda
+			 make-length-lambda )) 
+	      (lambda (make-length-lambda)	    
+		(funcall le
+			 (lambda (x)
+			   (funcall
+			    (funcall make-length-lambda
+				     make-length-lambda) x))) )))
+   (lambda (length)
+     (lambda (l)
+       (cond
+	 ((null l) 0)
+	 (t (1+ (funcall length (cdr l)))))))))
+
+(defun y-combinator (le)
+  "contract: -> (lambda: list-of-sexp -> number)"
+  (funcall (lambda (l)   
+	     (funcall l l )) 
+	   (lambda (l)	    
+	     (funcall le
+		      (lambda (x)
+			(funcall (funcall l l) x))) )))
+
+(defun length-y-combinator-powered (l)
+  (funcall (y-combinator
+	    (lambda (length)
+	      (lambda (l)
+		(cond
+		  ((null l) 0)
+		  (t (1+ (funcall length (cdr l)))))))) l))
+
+
+
+(defun make-length-doesnt-halts ()
   "contract: -> (lambda: list-of-sexp -> number)"
   (funcall (lambda (make-length-lambda)   
 	     (funcall make-length-lambda
