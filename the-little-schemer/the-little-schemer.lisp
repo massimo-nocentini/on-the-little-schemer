@@ -1443,3 +1443,79 @@ list-of-sexp -> number)"
 	       (cond
 		 ((null l) 0)
 		 (t (1+ (funcall some-length-function (cdr l)))))) ) ) )
+
+(defun new-entry (first second)
+  "contract: list-of-sexp list-of-sexp -> pair"
+  (build-pair first second))
+
+(defun lookup-in-entry (name entry failure-lambda)
+  "contract: atom pair (lambda: atom -> object) -> sexp"
+  (lookup-in-entry-helper name
+			  (pair-first-component entry)
+			  (pair-second-component entry)
+			  failure-lambda))
+
+(defun lookup-in-entry-helper (name names values failure-lambda)
+  "contract: atom list-of-sexp list-of-sexp (lambda: atom -> object)
+  -> sexp"
+  (cond
+    ((null names) (funcall failure-lambda name))
+    ((eq name (car names)) (car values))
+    (t (lookup-in-entry-helper name (cdr names) (cdr values)
+    failure-lambda)) ) )
+
+(defun extend-table (entry table)
+  (cons entry table))
+
+(defun lookup-in-table (name table failure-lambda)
+  "contract: atom list-of-entry (lambda: atom -> object) -> atom"
+  (cond
+    ((null table) (funcall failure-lambda name))
+    (t (lookup-in-entry name (car table)
+			(lambda (missing-name)
+			  (lookup-in-table name (cdr table)
+			  failure-lambda))))))
+
+(defun expression-to-action (e)
+  "contract: sexp -> (lambda: sexp table -> sexp)"
+  (cond
+    ((atomp e) (atom-to-action e))
+    (t (list-to-action e)) ))
+
+(defun atom-to-action (e)
+  "contract: atom -> (lambda: sexp table -> sexp)"
+  (cond
+    ((numberp e) (function *const))
+    ((eq e (quote t)) (function *const))
+    ((eq e (quote ())) (function *const))
+    ((eq e (quote cons)) (function *const))
+    ((eq e (quote car)) (function *const))
+    ((eq e (quote cdr)) (function *const))
+    ((eq e (quote null)) (function *const))
+    ((eq e (quote equal-sexps)) (function *const))
+    ((eq e (quote atomp)) (function *const))
+    ((eq e (quote zerop)) (function *const))
+    ((eq e (quote 1+)) (function *const))
+    ((eq e (quote 1-)) (function *const))
+    ((eq e (quote numberp)) (function *const))
+    (t (function *identifier)) ) )
+
+(defun list-to-action (e)
+  "contract: list-of-sexp -> (lambda: sexp table -> sexp)"
+  (cond
+    ((atomp (car e))
+     (cond
+       ((eq (car e) (quote quote)) (function *quote))
+       ((eq (car e) (quote lambda)) (function *lambda))
+       ((eq (car e) (quote cond)) (function *cond))
+       (t (function *application))))
+    (t (function *application)) ))
+
+(defun tls-eval (e)
+  "contract: sexp -> sexp"
+  (meaning e (quote ())))
+
+(defun meaning (e table)
+  "contract: sexp table -> sexp"
+  (funcall (expression-to-action e) e table) )
+
