@@ -705,6 +705,10 @@ This variation use the function MULTIREMBER as help function."
   "contract: pair -> sexp"
   (car (cdr pair)) )
 
+(defun pair-third-component (pair)
+  "contract: pair -> sexp"
+  (car (cdr (cdr pair))) )
+
 (defun build-pair (s1 s2)
   "contract: sexp sexp -> pair"
   (cons s1 (cons s2 (quote ()))))
@@ -1465,6 +1469,7 @@ list-of-sexp -> number)"
     failure-lambda)) ) )
 
 (defun extend-table (entry table)
+  "contract: entry table -> table"
   (cons entry table))
 
 (defun lookup-in-table (name table failure-lambda)
@@ -1473,8 +1478,18 @@ list-of-sexp -> number)"
     ((null table) (funcall failure-lambda name))
     (t (lookup-in-entry name (car table)
 			(lambda (missing-name)
-			  (lookup-in-table name (cdr table)
-			  failure-lambda))))))
+			  (lookup-in-table missing-name ;just to
+							;eliminate a
+							;style
+							;warning, we
+							;could have
+							;used NAME
+							;instead, the
+							;behaviour
+							;isn't
+							;affected
+					   (cdr table)
+					   failure-lambda))))))
 
 (defun expression-to-action (e)
   "contract: sexp -> (lambda: sexp table -> sexp)"
@@ -1519,3 +1534,76 @@ list-of-sexp -> number)"
   "contract: sexp table -> sexp"
   (funcall (expression-to-action e) e table) )
 
+(defun *const (e table)
+  "contract: sexp table -> sexp"
+  (cond
+    ((numberp e) e)			;a number evaluates to its
+					;value itself
+    ((eq e (quote t)) t)
+    ((eq e (quote ())) (quote ()))
+    (t (build-pair (quote primitive) e)) ) )
+
+(defun *quote (e table)
+  "contract: sexp table -> sexp"
+  (text-of e) )
+
+(defun text-of (e)
+  "contract: list-of-sexp (pair) -> list-of-sexp (pair)"
+  (pair-second-component e) )
+
+(defun *identifier (e table)
+  "contract: sexp table -> sexp"
+  (lookup-in-table e table (lambda (missing-name)
+			     (car (quote ())))) ) ;this is another way
+						  ;to raise an
+						  ;exception
+
+(defun *lambda (e table)
+  "contract: sexp table -> sexp"
+  (build-pair (quote non-primitive)
+	      (cons table (cdr e))) )	;the (cdr e) is a list that
+					;contains the formal
+					;parameters of the lambda
+					;expression and the lambda's
+					;body
+
+(defun table-of (e)
+  "contract: list-of-sexp -> sexp"
+  (pair-first-component e) )
+
+(defun formals-of (e)
+  "contract: list-of-sexp -> sexp"
+  (pair-second-component e) )
+
+(defun body-of (e)
+  "contract: list-of-sexp -> sexp"
+  (pair-third-component e) )
+
+;; TODO: this function isn't (unit tested)-covered
+(defun evcon (lines table)
+  (cond
+    ((elsep (question-of (car lines)))
+     (meaning (answer-of (car lines)) table))
+    ((meaning (question-of (car lines)) table)
+     (meaning (answer-of (car lines)) table))
+    (t (evcon (cdr lines) table))))
+
+(defun elsep (x)
+  "contract: list-of-sexp -> boolean"
+  (cond
+    ((atomp x) (eq x (quote t)))
+    (t (quote ())) ))
+
+(defun question-of (line)
+  "contract: pair -> sexp"
+  (pair-first-component line))
+
+(defun answer-of (line)
+  "contract: pair -> sexp"
+  (pair-second-component line))
+
+(defun *cond (e table)
+  (evcon (cond-lines-of e) table))
+
+(defun cond-lines-of (e)
+  (cdr e))
