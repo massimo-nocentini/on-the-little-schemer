@@ -1579,7 +1579,6 @@ list-of-sexp -> number)"
   "contract: list-of-sexp -> sexp"
   (pair-third-component e) )
 
-;; TODO: this function isn't (unit tested)-covered
 (defun evcon (lines table)
   (cond
     ((elsep (question-of (car lines)))
@@ -1607,3 +1606,61 @@ list-of-sexp -> number)"
 
 (defun cond-lines-of (e)
   (cdr e))
+
+(defun evlist (args table)
+  (cond
+    ((null args) (quote ()))
+    (t (cons (meaning (car args) table)
+	     (evlist (cdr args) table)))))
+
+(defun *application (e table)
+  (tls-apply (meaning (function-of e) table)
+	     (evlist (arguments-of e) table)) )
+
+(defun function-of (e)
+  (car e))
+
+(defun arguments-of (e)
+  (cdr e))
+
+(defun tls-apply (fun-representation evaluated-arguments)
+  (cond
+    ((primitivep fun-representation)
+     (apply-primitive (second fun-representation)
+		      evaluated-arguments))
+    ((non-primitivep fun-representation)
+     (apply-closure (second fun-representation)
+		    evaluated-arguments))))
+
+(defun primitivep (fun-representation)
+  (eq (car fun-representation) (quote primitive)))
+
+(defun non-primitivep (fun-representation)
+  (eq (car fun-representation) (quote non-primitive)))
+
+(defun apply-primitive (name vals)
+  (cond
+    ((eq name (quote cons)) (cons (first vals) (second vals)))
+    ((eq name (quote car)) (car (first vals)))
+    ((eq name (quote cdr)) (cdr (first vals)))
+    ((eq name (quote null)) (null (first vals)))
+    ((eq name (quote equal-sexps)) (equal-sexps (first vals) (second vals)))
+    ((eq name (quote atomp)) (atomp-for-apply-primitive (first vals)))
+    ((eq name (quote zerop)) (zerop (first vals)))
+    ((eq name (quote 1+)) (1+ (first vals)))
+    ((eq name (quote 1-)) (1- (first vals)))
+    ((eq name (quote numberp)) (numberp (first vals))) ))
+
+(defun atomp-for-apply-primitive (x)
+  (cond
+    ((atomp x) t)
+    ((null x) (quote ()))
+    ((eq (car x) (quote primitive)) t)
+    ((eq (car x) (quote non-primitive)) t)
+    (t nil)))
+
+(defun apply-closure (closure vals)
+  (meaning (body-of closure)
+	   (extend-table (new-entry (formals-of closure) vals)
+				    (table-of closure))))
+
