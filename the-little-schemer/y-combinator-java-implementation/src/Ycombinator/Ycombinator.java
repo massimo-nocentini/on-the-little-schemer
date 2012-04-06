@@ -6,47 +6,45 @@ public class Ycombinator<Input, Output> {
 		InterfaceOutput compute(InterfaceInput input);
 	}
 
-	public static interface ListLengthCalculatorRecursiveInvocation<Interface> {
-		Interface invokeWithRecursion(
-				ListLengthCalculatorRecursiveInvocation<Interface> self);
+	private static interface RecursiveInvocationFor<Interface> {
+		Interface invokeWithRecursion(RecursiveInvocationFor<Interface> self);
 	}
 
-	public static interface ListLengthCalculatorHighOrder<Interface> {
+	public static interface HighOrderCombinatorFor<Interface> {
 
-		Interface make(Interface calculator);
+		Interface combine(Interface calculator);
 	}
 
-	public static interface ListLengthCalculatorMaker<Interface> {
-		Interface use(ListLengthCalculatorHighOrder<Interface> highOrder);
+	private static interface FromHighOrderCombinatorTo<Interface> {
+		Interface map(HighOrderCombinatorFor<Interface> highOrder);
 	}
 
-	public Output recursion(
-			ListLengthCalculatorHighOrder<InterfaceType<Input, Output>> highOrderObject,
-			Input input) {
+	public InterfaceType<Input, Output> recursion(
+			HighOrderCombinatorFor<InterfaceType<Input, Output>> highOrderObject) {
 
-		return (new ListLengthCalculatorMaker<InterfaceType<Input, Output>>() {
+		return (new FromHighOrderCombinatorTo<InterfaceType<Input, Output>>() {
 
 			@Override
-			public InterfaceType<Input, Output> use(
-					final ListLengthCalculatorHighOrder<InterfaceType<Input, Output>> highOrder) {
+			public InterfaceType<Input, Output> map(
+					final HighOrderCombinatorFor<InterfaceType<Input, Output>> highOrder) {
 
-				return (new ListLengthCalculatorRecursiveInvocation<InterfaceType<Input, Output>>() {
+				return (new RecursiveInvocationFor<InterfaceType<Input, Output>>() {
 
 					@Override
 					public InterfaceType<Input, Output> invokeWithRecursion(
-							ListLengthCalculatorRecursiveInvocation<InterfaceType<Input, Output>> self) {
+							RecursiveInvocationFor<InterfaceType<Input, Output>> self) {
 
 						return self.invokeWithRecursion(self);
 
 					}
-				}).invokeWithRecursion(new ListLengthCalculatorRecursiveInvocation<InterfaceType<Input, Output>>() {
+				}).invokeWithRecursion(new RecursiveInvocationFor<InterfaceType<Input, Output>>() {
 
 					@Override
 					public InterfaceType<Input, Output> invokeWithRecursion(
-							final ListLengthCalculatorRecursiveInvocation<InterfaceType<Input, Output>> self) {
+							final RecursiveInvocationFor<InterfaceType<Input, Output>> self) {
 
 						return highOrder
-								.make(new InterfaceType<Input, Output>() {
+								.combine(new InterfaceType<Input, Output>() {
 
 									@Override
 									public Output compute(Input input) {
@@ -57,6 +55,6 @@ public class Ycombinator<Input, Output> {
 					}
 				});
 			}
-		}).use(highOrderObject).compute(input);
+		}).map(highOrderObject);
 	}
 }
