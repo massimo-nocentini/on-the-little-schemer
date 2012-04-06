@@ -6,16 +6,16 @@ public class Ycombinator<Input, Output> {
 		InterfaceOutput compute(InterfaceInput input);
 	}
 
-	private static interface RecursiveInvocationFor<Interface> {
-		Interface invokeWithRecursion(RecursiveInvocationFor<Interface> self);
-	}
-
-	public static interface HighOrderCombinatorFor<Interface> {
+	public interface HighOrderCombinatorFor<Interface> {
 
 		Interface combine(Interface calculator);
 	}
 
-	private static interface FromHighOrderCombinatorTo<Interface> {
+	private interface RecursiveInvocationFor<Interface> {
+		Interface invokeWithRecursion(RecursiveInvocationFor<Interface> self);
+	}
+
+	private interface FromHighOrderCombinatorTo<Interface> {
 		Interface map(HighOrderCombinatorFor<Interface> highOrder);
 	}
 
