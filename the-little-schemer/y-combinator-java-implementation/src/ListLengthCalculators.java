@@ -99,4 +99,44 @@ public class ListLengthCalculators {
 		}
 	};
 
+	public static ListLengthCalculator DecideOnlyListWithAtMostOneElementUsingHighOrder = new ListLengthCalculator() {
+
+		@Override
+		public int length(ListModule list) {
+
+			return (new ListLengthCalculatorHighOrder() {
+
+				@Override
+				public ListLengthCalculator make(
+						final ListLengthCalculator calculator) {
+
+					return new ListLengthCalculator() {
+
+						@Override
+						public int length(ListModule list) {
+							return list.size() == 0 ? 0 : 1 + calculator
+									.length(list.cdr());
+						}
+					};
+				}
+			}).make((new ListLengthCalculatorHighOrder() {
+
+				@Override
+				public ListLengthCalculator make(
+						final ListLengthCalculator calculator) {
+
+					return new ListLengthCalculator() {
+
+						@Override
+						public int length(ListModule list) {
+							return list.size() == 0 ? 0 : 1 + calculator
+									.length(list.cdr());
+						}
+					};
+				}
+			}).make(Eternity)).length(list);
+
+		}
+	};
+
 }

@@ -121,39 +121,43 @@ public class Unittests {
 	public void run_DecideOnlyEmptyLists_using_high_order_creation_with_empty_list() {
 
 		Assert.assertEquals(0,
-				ListLengthCalculators.DecideOnlyEmptyLists.length(empty_list));
+				ListLengthCalculators.DecideOnlyEmptyListsUsingHighOrder
+						.length(empty_list));
 	}
 
-	// @Test
-	// public void
-	// run_DecideOnlyEmptyLists_with_empty_list_using_high_order_creator() {
-	//
-	// ListLengthCalculatorHighOrderCreator high_order_creator = new
-	// ListLengthCalculatorHighOrderCreator();
-	//
-	// ListModule list = ListModule.nil();
-	//
-	// Assert.assertEquals(
-	// 0,
-	// high_order_creator
-	// .make(EternityListLengthCalculator.instance()).length(
-	// list));
-	// }
-	//
-	// @Test(expected = StackOverflowError.class)
-	// public void
-	// run_DecideOnlyEmptyLists_with_non_empty_list_using_high_order_creator() {
-	//
-	// ListLengthCalculatorHighOrderCreator high_order_creator = new
-	// ListLengthCalculatorHighOrderCreator();
-	//
-	// ListModule list = ListModule.nil().cons(new Object());
-	//
-	// Assert.assertEquals(
-	// 0,
-	// high_order_creator
-	// .make(EternityListLengthCalculator.instance()).length(
-	// list));
-	// }
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyEmptyLists_using_high_order_creation_with_non_empty_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(0,
+				ListLengthCalculators.DecideOnlyEmptyListsUsingHighOrder
+						.length(list_with_one_element));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostOneElement_using_high_order_creation_with_empty_list() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyListWithAtMostOneElementUsingHighOrder
+						.length(empty_list));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostOneElement_using_high_order_creation_with_one_element_in_list() {
+
+		Assert.assertEquals(
+				1,
+				ListLengthCalculators.DecideOnlyListWithAtMostOneElementUsingHighOrder
+						.length(list_with_one_element));
+	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyListsWithAtMostOneElement_using_high_order_creation_with_two_element_in_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(
+				-1,
+				ListLengthCalculators.DecideOnlyListWithAtMostOneElementUsingHighOrder
+						.length(list_with_two_elements));
+	}
 
 }
