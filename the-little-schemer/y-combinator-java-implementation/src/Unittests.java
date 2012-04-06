@@ -369,4 +369,12 @@ public class Unittests {
 				ListLengthCalculators.DecideListLengthUsingSelfRecursion
 						.length(list_with_five_elements));
 	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_UndecideListLengthExtractingSelfRecursion_with_empty_list() {
+
+		Assert.assertEquals(0,
+				ListLengthCalculators.UndecideListLengthExtractingSelfRecursion
+						.length(empty_list));
+	}
 }
