@@ -412,4 +412,151 @@ public class ListLengthCalculators {
 		}
 	};
 
+	public static ListLengthCalculator DecideListLengthUsingSelfRecursionTowardYCombinatorFirstStep = new ListLengthCalculator() {
+
+		@Override
+		public int length(ListModule list) {
+
+			return (new ListLengthCalculatorRecursiveInvocation() {
+
+				@Override
+				public ListLengthCalculator invokeWithRecursion(
+						ListLengthCalculatorRecursiveInvocation self) {
+
+					return self.invokeWithRecursion(self);
+
+				}
+			}).invokeWithRecursion(
+					new ListLengthCalculatorRecursiveInvocation() {
+
+						@Override
+						public ListLengthCalculator invokeWithRecursion(
+								final ListLengthCalculatorRecursiveInvocation self) {
+
+							return new ListLengthCalculator() {
+
+								@Override
+								public int length(ListModule list) {
+									return list.size() == 0 ? 0
+											: 1 + (new ListLengthCalculator() {
+
+												@Override
+												public int length(
+														ListModule list) {
+													return self
+															.invokeWithRecursion(
+																	self)
+															.length(list);
+												}
+											}).length(list.cdr());
+								}
+							};
+						}
+					}).length(list);
+
+		}
+	};
+
+	public static ListLengthCalculator DecideListLengthUsingSelfRecursionTowardYCombinatorSecondStep = new ListLengthCalculator() {
+
+		@Override
+		public int length(ListModule list) {
+
+			return (new ListLengthCalculatorRecursiveInvocation() {
+
+				@Override
+				public ListLengthCalculator invokeWithRecursion(
+						ListLengthCalculatorRecursiveInvocation self) {
+
+					return self.invokeWithRecursion(self);
+
+				}
+			}).invokeWithRecursion(
+					new ListLengthCalculatorRecursiveInvocation() {
+
+						@Override
+						public ListLengthCalculator invokeWithRecursion(
+								final ListLengthCalculatorRecursiveInvocation self) {
+
+							return (new ListLengthCalculatorHighOrder() {
+
+								@Override
+								public ListLengthCalculator make(
+										final ListLengthCalculator calculator) {
+
+									return new ListLengthCalculator() {
+
+										@Override
+										public int length(ListModule list) {
+											return list.size() == 0 ? 0
+													: 1 + calculator
+															.length(list.cdr());
+										}
+									};
+								}
+							}).make(new ListLengthCalculator() {
+
+								@Override
+								public int length(ListModule list) {
+									return self.invokeWithRecursion(self)
+											.length(list);
+								}
+							});
+						}
+					}).length(list);
+
+		}
+	};
+
+	public static ListLengthCalculator DecideListLengthUsingSelfRecursionTowardYCombinatorThirdStep = new ListLengthCalculator() {
+
+		@Override
+		public int length(ListModule list) {
+
+			return (new ListLengthCalculatorRecursiveInvocation() {
+
+				@Override
+				public ListLengthCalculator invokeWithRecursion(
+						ListLengthCalculatorRecursiveInvocation self) {
+
+					return self.invokeWithRecursion(self);
+
+				}
+			}).invokeWithRecursion(
+					new ListLengthCalculatorRecursiveInvocation() {
+
+						@Override
+						public ListLengthCalculator invokeWithRecursion(
+								final ListLengthCalculatorRecursiveInvocation self) {
+
+							return (new ListLengthCalculatorHighOrder() {
+
+								@Override
+								public ListLengthCalculator make(
+										final ListLengthCalculator calculator) {
+
+									return new ListLengthCalculator() {
+
+										@Override
+										public int length(ListModule list) {
+											return list.size() == 0 ? 0
+													: 1 + calculator
+															.length(list.cdr());
+										}
+									};
+								}
+							}).make(new ListLengthCalculator() {
+
+								@Override
+								public int length(ListModule list) {
+									return self.invokeWithRecursion(self)
+											.length(list);
+								}
+							});
+						}
+					}).length(list);
+
+		}
+	};
+
 }
