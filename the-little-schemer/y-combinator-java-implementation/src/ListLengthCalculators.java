@@ -194,4 +194,37 @@ public class ListLengthCalculators {
 		}
 	};
 
+	public static ListLengthCalculator DecideOnlyEmptyListsUsingHighOrder_mklength = new ListLengthCalculator() {
+
+		@Override
+		public int length(ListModule list) {
+
+			return (new ListLengthCalculatorMaker() {
+
+				@Override
+				public ListLengthCalculator use(
+						ListLengthCalculatorHighOrder highOrder) {
+
+					return highOrder.make(Eternity);
+				}
+			}).use(new ListLengthCalculatorHighOrder() {
+
+				@Override
+				public ListLengthCalculator make(
+						final ListLengthCalculator calculator) {
+
+					return new ListLengthCalculator() {
+
+						@Override
+						public int length(ListModule list) {
+							return list.size() == 0 ? 0 : 1 + calculator
+									.length(list.cdr());
+						}
+					};
+				}
+			}).length(list);
+
+		}
+	};
+
 }
