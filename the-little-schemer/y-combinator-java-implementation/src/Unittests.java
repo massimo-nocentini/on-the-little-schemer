@@ -160,4 +160,40 @@ public class Unittests {
 						.length(list_with_two_elements));
 	}
 
+	@Test
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_high_order_with_empty_list() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder
+						.length(empty_list));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_high_order_with_one_element_in_list() {
+
+		Assert.assertEquals(
+				1,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder
+						.length(list_with_one_element));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_high_order_with_two_element_in_list() {
+
+		Assert.assertEquals(
+				2,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder
+						.length(list_with_two_elements));
+	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_high_order_with_two_element_in_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(
+				-1,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder
+						.length(list_with_three_elements));
+	}
+
 }
