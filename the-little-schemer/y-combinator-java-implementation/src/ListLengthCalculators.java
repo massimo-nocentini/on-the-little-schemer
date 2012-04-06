@@ -513,39 +513,28 @@ public class ListLengthCalculators {
 		@Override
 		public int length(ListModule list) {
 
-			return (new ListLengthCalculatorRecursiveInvocation() {
+			return (new ListLengthCalculatorMaker() {
 
 				@Override
-				public ListLengthCalculator invokeWithRecursion(
-						ListLengthCalculatorRecursiveInvocation self) {
+				public ListLengthCalculator use(
+						final ListLengthCalculatorHighOrder highOrder) {
 
-					return self.invokeWithRecursion(self);
+					return (new ListLengthCalculatorRecursiveInvocation() {
 
-				}
-			}).invokeWithRecursion(
-					new ListLengthCalculatorRecursiveInvocation() {
+						@Override
+						public ListLengthCalculator invokeWithRecursion(
+								ListLengthCalculatorRecursiveInvocation self) {
+
+							return self.invokeWithRecursion(self);
+
+						}
+					}).invokeWithRecursion(new ListLengthCalculatorRecursiveInvocation() {
 
 						@Override
 						public ListLengthCalculator invokeWithRecursion(
 								final ListLengthCalculatorRecursiveInvocation self) {
 
-							return (new ListLengthCalculatorHighOrder() {
-
-								@Override
-								public ListLengthCalculator make(
-										final ListLengthCalculator calculator) {
-
-									return new ListLengthCalculator() {
-
-										@Override
-										public int length(ListModule list) {
-											return list.size() == 0 ? 0
-													: 1 + calculator
-															.length(list.cdr());
-										}
-									};
-								}
-							}).make(new ListLengthCalculator() {
+							return highOrder.make(new ListLengthCalculator() {
 
 								@Override
 								public int length(ListModule list) {
@@ -554,7 +543,24 @@ public class ListLengthCalculators {
 								}
 							});
 						}
-					}).length(list);
+					});
+				}
+			}).use(new ListLengthCalculatorHighOrder() {
+
+				@Override
+				public ListLengthCalculator make(
+						final ListLengthCalculator calculator) {
+
+					return new ListLengthCalculator() {
+
+						@Override
+						public int length(ListModule list) {
+							return list.size() == 0 ? 0 : 1 + calculator
+									.length(list.cdr());
+						}
+					};
+				}
+			}).length(list);
 
 		}
 	};

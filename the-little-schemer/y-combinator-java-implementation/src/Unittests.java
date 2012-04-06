@@ -343,6 +343,13 @@ public class Unittests {
 
 	}
 
+	@Test
+	public void run_DecideListLengthUsingSelfRecursionTowardYCombinatorThirsStep_with_all_list() {
+
+		assert_correct_computation_for_all_testing_lists(ListLengthCalculators.DecideListLengthUsingSelfRecursionTowardYCombinatorThirdStep);
+
+	}
+
 	private void assert_correct_computation_for_all_testing_lists(
 			ListLengthCalculator calculator) {
 
