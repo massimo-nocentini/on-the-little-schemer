@@ -196,4 +196,129 @@ public class Unittests {
 						.length(list_with_three_elements));
 	}
 
+	@Test
+	public void run_DecideOnlyEmptyLists_using_mklength_creation_with_empty_list() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyEmptyListsUsingHighOrder_mklength
+						.length(empty_list));
+	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyEmptyLists_using_mklength_creation_with_non_empty_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyEmptyListsUsingHighOrder_mklength
+						.length(list_with_one_element));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostOneElement_using_mklength_creation_with_empty_list() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyListWithAtMostOneElementUsingHighOrder_mklength
+						.length(empty_list));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostOneElement_using_mklength_creation_with_one_element_in_list() {
+
+		Assert.assertEquals(
+				1,
+				ListLengthCalculators.DecideOnlyListWithAtMostOneElementUsingHighOrder_mklength
+						.length(list_with_one_element));
+	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyListsWithAtMostOneElement_using_mklength_creation_with_two_element_in_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(
+				-1,
+				ListLengthCalculators.DecideOnlyListWithAtMostOneElementUsingHighOrder_mklength
+						.length(list_with_two_elements));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_mklength_with_empty_list() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder_mklength
+						.length(empty_list));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_mklength_with_one_element_in_list() {
+
+		Assert.assertEquals(
+				1,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder_mklength
+						.length(list_with_one_element));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_mklength_with_two_element_in_list() {
+
+		Assert.assertEquals(
+				2,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder_mklength
+						.length(list_with_two_elements));
+	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyListsWithAtMostTwoElement_using_mklength_with_two_element_in_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(
+				-1,
+				ListLengthCalculators.DecideOnlyListWithAtMostTwoElementUsingHighOrder_mklength
+						.length(list_with_three_elements));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostThreeElement_using_mklength_with_empty_list() {
+
+		Assert.assertEquals(
+				0,
+				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
+						.length(empty_list));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostThreeElement_using_mklength_with_one_element_in_list() {
+
+		Assert.assertEquals(
+				1,
+				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
+						.length(list_with_one_element));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostThreeElement_using_mklength_with_two_element_in_list() {
+
+		Assert.assertEquals(
+				2,
+				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
+						.length(list_with_two_elements));
+	}
+
+	@Test
+	public void run_DecideOnlyListsWithAtMostThreeElement_using_mklength_with_three_element_in_list() {
+
+		Assert.assertEquals(
+				2,
+				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
+						.length(list_with_two_elements));
+	}
+
+	@Test(expected = StackOverflowError.class)
+	public void run_DecideOnlyListsWithAtMostThreeElement_using_mklength_with_four_element_in_list_should_produce_stack_overflow() {
+
+		Assert.assertEquals(
+				-1,
+				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
+						.length(list_with_four_elements));
+	}
 }
