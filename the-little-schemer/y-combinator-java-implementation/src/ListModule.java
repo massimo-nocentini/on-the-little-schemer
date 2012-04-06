@@ -29,4 +29,16 @@ public class ListModule {
 	public int size() {
 		return internal_list.size();
 	}
+
+	public static ListModule makeWithRequestedCardinality(int cardinality) {
+		ListModule result = ListModule.nil();
+
+		for (int counter = 0; counter < cardinality; counter = counter + 1) {
+
+			result = result.cons(new Object());
+		}
+
+		return result;
+
+	}
 }

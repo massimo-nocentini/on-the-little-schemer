@@ -33,6 +33,15 @@ public class Unittests {
 	}
 
 	@Test
+	public void checking_lists_for_requested_cardinality() {
+
+		int cardinality = 54;
+		Assert.assertEquals(cardinality, ListModule
+				.makeWithRequestedCardinality(cardinality).size());
+
+	}
+
+	@Test
 	public void default_list_length_calculator_should_compute_correctly() {
 
 		ListLengthCalculator calculator = ListLengthCalculators.NormalRecursion;
@@ -418,6 +427,10 @@ public class Unittests {
 
 		Assert.assertEquals((Integer) 5,
 				entire_computation.compute(list_with_five_elements));
+
+		Integer cardinality = 190;
+		Assert.assertEquals(cardinality, entire_computation.compute(ListModule
+				.makeWithRequestedCardinality(cardinality)));
 
 	}
 }
