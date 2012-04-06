@@ -1,6 +1,10 @@
 import org.junit.Assert;
 import org.junit.Test;
 
+import Ycombinator.Ycombinator;
+import Ycombinator.Ycombinator.HighOrderCombinatorFor;
+import Ycombinator.Ycombinator.InterfaceType;
+
 public class Unittests {
 
 	private static ListModule empty_list = ListModule.nil();
@@ -375,4 +379,45 @@ public class Unittests {
 						.length(empty_list));
 	}
 
+	@Test
+	public void YCombinator_examples() {
+		Ycombinator<ListModule, Integer> y_combinator = new Ycombinator<ListModule, Integer>();
+
+		InterfaceType<ListModule, Integer> entire_computation = y_combinator
+				.recursion(new HighOrderCombinatorFor<Ycombinator.InterfaceType<ListModule, Integer>>() {
+
+					@Override
+					public InterfaceType<ListModule, Integer> combine(
+							final InterfaceType<ListModule, Integer> calculator) {
+
+						return new InterfaceType<ListModule, Integer>() {
+
+							@Override
+							public Integer compute(ListModule input) {
+
+								return input.size() == 0 ? 0 : 1 + calculator
+										.compute(input.cdr());
+							}
+						};
+					}
+				});
+
+		Assert.assertEquals((Integer) 0, entire_computation.compute(empty_list));
+
+		Assert.assertEquals((Integer) 1,
+				entire_computation.compute(list_with_one_element));
+
+		Assert.assertEquals((Integer) 2,
+				entire_computation.compute(list_with_two_elements));
+
+		Assert.assertEquals((Integer) 3,
+				entire_computation.compute(list_with_three_elements));
+
+		Assert.assertEquals((Integer) 4,
+				entire_computation.compute(list_with_four_elements));
+
+		Assert.assertEquals((Integer) 5,
+				entire_computation.compute(list_with_five_elements));
+
+	}
 }
