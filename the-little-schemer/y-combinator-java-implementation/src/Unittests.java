@@ -308,9 +308,9 @@ public class Unittests {
 	public void run_DecideOnlyListsWithAtMostThreeElement_using_mklength_with_three_element_in_list() {
 
 		Assert.assertEquals(
-				2,
+				3,
 				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
-						.length(list_with_two_elements));
+						.length(list_with_three_elements));
 	}
 
 	@Test(expected = StackOverflowError.class)
@@ -320,5 +320,53 @@ public class Unittests {
 				-1,
 				ListLengthCalculators.DecideOnlyListWithAtMostThreeElementUsingHighOrder_mklength
 						.length(list_with_four_elements));
+	}
+
+	@Test
+	public void run_DecideListLengthUsingSelfRecursion_with_empty_list() {
+
+		Assert.assertEquals(0,
+				ListLengthCalculators.DecideListLengthUsingSelfRecursion
+						.length(empty_list));
+	}
+
+	@Test
+	public void run_DecideListLengthUsingSelfRecursion_with_one_element_in_list() {
+
+		Assert.assertEquals(1,
+				ListLengthCalculators.DecideListLengthUsingSelfRecursion
+						.length(list_with_one_element));
+	}
+
+	@Test
+	public void run_DecideListLengthUsingSelfRecursion_with_two_element_in_list() {
+
+		Assert.assertEquals(2,
+				ListLengthCalculators.DecideListLengthUsingSelfRecursion
+						.length(list_with_two_elements));
+	}
+
+	@Test
+	public void run_DecideListLengthUsingSelfRecursion_with_three_element_in_list() {
+
+		Assert.assertEquals(3,
+				ListLengthCalculators.DecideListLengthUsingSelfRecursion
+						.length(list_with_three_elements));
+	}
+
+	@Test
+	public void run_DecideListLengthUsingSelfRecursion_with_four_element_in_list() {
+
+		Assert.assertEquals(4,
+				ListLengthCalculators.DecideListLengthUsingSelfRecursion
+						.length(list_with_four_elements));
+	}
+
+	@Test
+	public void run_DecideListLengthUsingSelfRecursion_with_five_element_in_list() {
+
+		Assert.assertEquals(5,
+				ListLengthCalculators.DecideListLengthUsingSelfRecursion
+						.length(list_with_five_elements));
 	}
 }

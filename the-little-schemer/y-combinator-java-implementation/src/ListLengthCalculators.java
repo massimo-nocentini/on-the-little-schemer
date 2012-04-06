@@ -328,4 +328,40 @@ public class ListLengthCalculators {
 		}
 	};
 
+	public static ListLengthCalculator DecideListLengthUsingSelfRecursion = new ListLengthCalculator() {
+
+		@Override
+		public int length(ListModule list) {
+
+			return (new ListLengthCalculatorRecursiveInvocation() {
+
+				@Override
+				public ListLengthCalculator invokeWithRecursion(
+						ListLengthCalculatorRecursiveInvocation self) {
+
+					return self.invokeWithRecursion(self);
+
+				}
+			}).invokeWithRecursion(
+					new ListLengthCalculatorRecursiveInvocation() {
+
+						@Override
+						public ListLengthCalculator invokeWithRecursion(
+								final ListLengthCalculatorRecursiveInvocation self) {
+
+							return new ListLengthCalculator() {
+
+								@Override
+								public int length(ListModule list) {
+									return list.size() == 0 ? 0 : 1 + self
+											.invokeWithRecursion(self).length(
+													list.cdr());
+								}
+							};
+						}
+					}).length(list);
+
+		}
+	};
+
 }
