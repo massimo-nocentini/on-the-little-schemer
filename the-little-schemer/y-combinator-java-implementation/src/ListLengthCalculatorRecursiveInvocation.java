@@ -1,4 +1,4 @@
 public interface ListLengthCalculatorRecursiveInvocation {
-	ListLengthCalculator invokeWithRecursion(
+	ListLengthCalculator invokeWithSelfRecursion(
 			ListLengthCalculatorRecursiveInvocation self);
 }

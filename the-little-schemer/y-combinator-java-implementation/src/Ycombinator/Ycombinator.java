@@ -7,12 +7,11 @@ public class Ycombinator<Input, Output> {
 	}
 
 	public interface HighOrderCombinatorFor<Interface> {
-
 		Interface combine(Interface calculator);
 	}
 
 	private interface RecursiveInvocationFor<Interface> {
-		Interface invokeWithRecursion(RecursiveInvocationFor<Interface> self);
+		Interface invokeWithSelfRecursion(RecursiveInvocationFor<Interface> self);
 	}
 
 	private interface FromHighOrderCombinatorTo<Interface> {
@@ -31,16 +30,16 @@ public class Ycombinator<Input, Output> {
 				return (new RecursiveInvocationFor<InterfaceType<Input, Output>>() {
 
 					@Override
-					public InterfaceType<Input, Output> invokeWithRecursion(
+					public InterfaceType<Input, Output> invokeWithSelfRecursion(
 							RecursiveInvocationFor<InterfaceType<Input, Output>> self) {
 
-						return self.invokeWithRecursion(self);
+						return self.invokeWithSelfRecursion(self);
 
 					}
-				}).invokeWithRecursion(new RecursiveInvocationFor<InterfaceType<Input, Output>>() {
+				}).invokeWithSelfRecursion(new RecursiveInvocationFor<InterfaceType<Input, Output>>() {
 
 					@Override
-					public InterfaceType<Input, Output> invokeWithRecursion(
+					public InterfaceType<Input, Output> invokeWithSelfRecursion(
 							final RecursiveInvocationFor<InterfaceType<Input, Output>> self) {
 
 						return highOrder
@@ -48,7 +47,7 @@ public class Ycombinator<Input, Output> {
 
 									@Override
 									public Output compute(Input input) {
-										return self.invokeWithRecursion(self)
+										return self.invokeWithSelfRecursion(self)
 												.compute(input);
 									}
 								});
