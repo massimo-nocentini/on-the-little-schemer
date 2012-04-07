@@ -8,7 +8,7 @@
 \usepackage[T1]{fontenc} 
 \usepackage[square,numbers]{natbib} 
 \usepackage[fleqn]{amsmath}  
-\usepackage[italian]{babel}
+\usepackage[english]{babel}
 %--------------------------------------------------------------
 \usepackage{dia-classicthesis-ldpkg} 
 %--------------------------------------------------------------
@@ -78,9 +78,9 @@
 % settings for the lstlisting environment
 \lstset{
 	language = Lisp
-	, numbers = left 
+	, numbers = right
 	, basicstyle=\footnotesize
-	, frame=tlb
+	, frame=tlbr
 	, tabsize=2
 	, captionpos=b
 	, breaklines=true
@@ -105,6 +105,10 @@
 
 \section{Java implementation of Y-combinator}
 \label{sec:java-implementation-of-y-combinator}
+This implementation may seem repetitive and not object oriented: I've
+choosen to do it in this way because every step is immediately
+available without resorting to Git history.
+
 \lstinputlisting[language=java]{the-little-schemer/y-combinator-java-implementation/src/ListLengthCalculatorHighOrder.java}
 \lstinputlisting[language=java]{the-little-schemer/y-combinator-java-implementation/src/ListLengthCalculatorMaker.java}
 \lstinputlisting[language=java]{the-little-schemer/y-combinator-java-implementation/src/ListLengthCalculatorRecursiveInvocation.java}
