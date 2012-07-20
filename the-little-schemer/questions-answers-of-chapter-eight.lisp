@@ -1,3 +1,5 @@
+(in-package :com.github.massimo-nocentini.the-little-schemer)
+
 (lisp-unit:define-test questions-of-chapter-eight
 
   (lisp-unit:assert-equal '(6 2 3)

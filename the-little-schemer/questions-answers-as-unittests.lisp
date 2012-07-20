@@ -1,7 +1,4 @@
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (require :lisp-unit "lisp-unit.lisp"))
-  
+(in-package :com.github.massimo-nocentini.the-little-schemer)
 
 (lisp-unit:define-test simple-atom-questions-chapter-one
   (lisp-unit:assert-false
@@ -65,11 +62,11 @@
    '()
    (car '()) )
 
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '((hotdogs))
    (car '(((hotdogs)) (and) (pickle) relish)) )
   
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '(hotdogs)
    (car (car '(((hotdogs)) (and)) ) ) )
 
@@ -135,7 +132,7 @@
   ;; by the cons application.  We've used the assert-eq because of the
   ;; application of the car, which return the content, so we are in
   ;; the case of the assertion above.
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '(x y)
    (car (cdr '((b) (x y) ((c))) )) )
 

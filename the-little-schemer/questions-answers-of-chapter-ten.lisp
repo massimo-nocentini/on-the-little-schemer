@@ -1,3 +1,5 @@
+(in-package :com.github.massimo-nocentini.the-little-schemer)
+
 (lisp-unit:define-test questions-of-chapter-ten
 
   (lisp-unit:assert-equal '((first-name second-name)

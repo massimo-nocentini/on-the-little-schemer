@@ -1,7 +1,4 @@
-
-;; (eval-when (:compile-toplevel :load-toplevel :execute)
-;;   (require :lisp-unit "lisp-unit.lisp"))
-  
+(in-package :com.github.massimo-nocentini.the-little-schemer)
 
 (lisp-unit:define-test questions-about-rember
   (lisp-unit:assert-equal '(lettuce and tomato)
@@ -154,5 +151,18 @@
 
 
   
+  )
+
+(lisp-unit:define-test chapter-three-exercises-from-the-little-lisper
+
+  (lisp-unit:assert-equal '(spanish red beans)
+     (seconds '((paella spanish) (wine red) (and beans))))
+
+  (lisp-unit:assert-equal '()
+     (seconds '()))
+
+  (lisp-unit:assert-equal '(hot dogs)
+     (seconds '((and hot) (but dogs))))
+
   )
 				    

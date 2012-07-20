@@ -1,3 +1,5 @@
+(in-package :com.github.massimo-nocentini.the-little-schemer)
+
 (lisp-unit:define-test questions-of-chapter-seven
 
   (lisp-unit:assert-false (setp '(apple peaches apple plum)))
