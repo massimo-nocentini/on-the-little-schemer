@@ -164,5 +164,80 @@
   (lisp-unit:assert-equal '(hot dogs)
      (seconds '((and hot) (but dogs))))
 
+  (lisp-unit:assert-equal '(hot hot hot)
+			  (dupla 'hot '(texas hot chili)))
+
+  (lisp-unit:assert-equal '()
+			  (dupla 'hot '()))
+
+  (lisp-unit:assert-equal '(chili chili chili chili chili)
+			  (dupla 'chili '(soy sauce and tomato sauce)))
+
+  (lisp-unit:assert-equal '(cincinnati chili chili)
+			  (double 'chili '(cincinnati chili)))
+
+  (lisp-unit:assert-equal '()
+			  (double 'hot '()))
+
+  (lisp-unit:assert-equal '(texas hot hot chili)
+			  (double 'hot '(texas hot chili)))
+
+  (lisp-unit:assert-equal '(texas hot chili)
+			  (subst-sauce 'chili '(texas hot chili)))
+
+  (lisp-unit:assert-equal '(soy chili and tomato sauce)
+			  (subst-sauce 'chili '(soy sauce and tomato
+						sauce)))
+
+  (lisp-unit:assert-equal '()
+			  (subst-sauce 'hot '()))
+
+  (lisp-unit:assert-equal '(soy soy and tomato sauce)
+			  (subst3 'soy 'chili 'hot 'sauce '(soy sauce
+							    and tomato
+							    sauce)))
+
+  (lisp-unit:assert-equal '(texas sauce chili)
+			  (subst3 'sauce 'chili 'hot 'spicy '(texas
+							      hot
+							      chili)))
+
+  (lisp-unit:assert-equal '()
+			  (subst3 'spicy 'chili 'hot 'soy '()))
+
+  
+  (lisp-unit:assert-equal '(texas hot hot)
+			  (subst-other-list-occurring 'hot
+						      '(cincinnati
+						      chili) '(texas
+						      hot chili)))
+
+  (lisp-unit:assert-equal '(soy sauce and tomato sauce)
+			  (subst-other-list-occurring 'sauce
+							      '(cincinnati
+							      chili)
+							      '(soy
+							      sauce
+							      and
+							      tomato
+							      sauce)))
+
+  (lisp-unit:assert-equal '()
+			  (subst-other-list-occurring 'sauce
+						      '(cincinnati
+						      chili) '()))
+
+
+  (lisp-unit:assert-equal '(cincinnati chili)
+			  (rember2 'chili '(cincinnati chili)))
+
+  (lisp-unit:assert-equal '(soy sauce and tomato)
+			  (rember2 'sauce '(soy sauce and tomato
+					    sauce)))
+
+  (lisp-unit:assert-equal '()
+			  (rember2 'sauce '()))
+
+
   )
 				    

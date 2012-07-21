@@ -5,6 +5,8 @@
 (load "packages.lisp")
 (load "the-little-schemer.lisp")
 (load "chapter-two.lisp")
+(load "chapter-three.lisp")
+(load "exercises.lisp")
 (load "questions-answers-as-unittests.lisp")
 (load "questions-answers-of-chapter-eight.lisp")
 (load "questions-answers-of-chapter-five.lisp")
@@ -15,5 +17,6 @@
 (load "questions-answers-of-chapter-ten.lisp")
 (load "questions-answers-of-chapter-three.lisp")
 (load "questions-answers-of-chapter-two.lisp")
+
 
 

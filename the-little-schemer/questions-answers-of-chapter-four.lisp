@@ -140,3 +140,38 @@
   (lisp-unit:assert-false (onep 50))
   
   )
+
+(lisp-unit:define-test chapter-four-exercises
+
+  (assert-equal '((x y) (x y) (x y)) (duplicate 3 '(x y)) )
+  (assert-equal '() (duplicate 0 '(x y)) )
+  (assert-equal '((1 2)) (duplicate 1 '(1 2)) )
+
+  (assert-eql 3 (index 'car '(cons cdr car null eq)))
+  (assert-eql 1 (index 'car '(car engine auto motor)))
+  (assert-eql nil (index 'car '()))
+  (assert-eql 4 (index 'motor '(car engine auto motor)))  
+
+  (assert-eql 3 (index-with-acc 'car '(cons cdr car null eq) 0))
+  (assert-eql 1 (index-with-acc 'car '(car engine auto motor) 0))
+  (assert-eql nil (index-with-acc 'car '() 0))
+  (assert-eql 4 (index-with-acc 'motor '(car engine auto motor) 0))
+
+  (assert-eql 29 (dot-product-with-acc '(3 2 4) '(3 2 4) 0))
+  (assert-eql 26 (dot-product-with-acc '(3 2 4) '(6 2 1) 0))
+  (assert-eql 17 (dot-product-with-acc '(2 1 3) '(6 2 1) 0))
+
+  (assert-equal '((bananas) (kiwis))
+		(multidown-with-acc '(bananas kiwis) '()))
+  (assert-equal '((peaches) (apples) (bananas))
+		(multidown-with-acc '(peaches apples bananas) '()))
+  (assert-equal '() (multidown-with-acc '() '()))
+
+  (assert-equal '() (multiup-with-acc '() '()))
+  (assert-equal '(curry chicken)
+		(multiup-with-acc '((curry) () (chicken) ()) '()))
+  (assert-equal '(peaches (and cream))
+		(multiup-with-acc '((peaches) (and cream)) '()))
+  
+  
+  )

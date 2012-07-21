@@ -54,11 +54,11 @@
   ;; the following test show that the car return the first element
   ;; itself and not copy of it ('cause we use assert-eq instead of
   ;; assert-equal
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '(a b c)
    (car '((a b c) x y z)) )
 
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '()
    (car '()) )
 
@@ -91,7 +91,7 @@
   ;; list with only one element inside, we get the () which we can
   ;; compare with eq predicate and it returns true. However, as shown
   ;; in the assertion below, it is coherent with the predicate equal.
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '()
    (cdr '(hamburger)) )  
 
@@ -113,12 +113,12 @@
    'type-error
    (cdr 'hotdogs))
   
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '()
    (cdr '() ) )
 
   ;; this assertion is the prelude of the next one.
-  (lisp-unit:assert-eq
+  (lisp-unit:assert-equal
    '(x y)
    '(x y))
   

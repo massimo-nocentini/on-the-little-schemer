@@ -17,12 +17,6 @@
     (t (cons (car (car l))		;typical element
 	     (firsts (cdr l))))))	;natural recursion
 
-(defun seconds (l)
-  (cond
-    ((null l) (quote ()))
-    (t (cons (car (cdr (car l)))        ;typical element
-	     (seconds (cdr l))))))	;natural recursion
-
 (defun insertR (new old lat)
   (cond ((null lat) (quote ()))
 	((eq old (car lat)) (cons old	;we could use (car lat) also,
@@ -60,12 +54,14 @@ substituted by the atom NEW."
 	(t (cons (car lat)
 		 (my-subst new old (cdr lat))))))
 
+
 (defun my-subst2 (new o1 o2 lat)
   (cond ((null lat) (quote ()))
 	((or (eq o1 (car lat))
 	     (eq o2 (car lat))) (cons new (cdr lat)))
 	(t (cons (car lat)
 		 (my-subst2 new o1 o2 (cdr lat))))))
+
 
 (defun multirember (a lat)
     "Contract: atom list-of-atom -> list-of-atom

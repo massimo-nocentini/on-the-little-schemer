@@ -5,7 +5,6 @@
 otherwise."
   (not (listp x)))
 
-
 (defun o+ (n m)
   "Contract: number number -> number"
   (cond ((zerop m) n)
