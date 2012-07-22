@@ -1,17 +1,12 @@
-* Lisp Labs From Books
-  This is my laboratory where I hope to practice Lisp and functional
-  programming.
+* On The Little Schemer
 
-  The repository structure is as follow:
-  
-** for every book or article that I'll use there will be a corresponding folder
-   In every folder I try to put all the source that implement the
-   study content.
-** Under the root folder I'll try to keep a document written in Latex
-   In this document there will my reasoning about problems
+This work collect my code during the study of TLS by Friedman and
+Felleisen. Much of it is the code written in the book, a small piece
+is about the exercises presented in the previous revision of the TSL,
+namely The Little Lisper.
 
-* Books
-** The Little Schemer
-   <2012-04-06 Fri> Introduced the implementation of the Y-combinator
-   in a statically typed language, that is Java. 
+<2012-07-22 Sun> Add the solution to some exercises up to chapter six.
+
+<2012-04-06 Fri> Introduce the implementation of the Y-combinator in
+a statically typed language, that is Java.
 

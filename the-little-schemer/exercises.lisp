@@ -93,9 +93,73 @@
 
 (defun multiup-with-acc (lat acc)
   (cond
-    ((null lat) (reverse acc))
-    ((null (car lat)) (multiup-with-acc (cdr lat) acc))
+    ((null lat) (reverse acc))		;just reverse the accumulated
+    ((null (car lat))
+     (multiup-with-acc (cdr lat) acc))	;ignore the empty list in (car
+					;lat) and recur
     ((onep (length (car lat)))
      (multiup-with-acc (cdr lat)
-		       (cons (car (car lat)) acc)))
+		       (cons (car (car lat)) acc))) ;'up-ing'
     (t (multiup-with-acc (cdr lat) (cons (car lat) acc)))))
+
+(defun down*-with-acc-prefix (l acc)
+  "Given a list and an accumulator, returns a list such that contains
+each atom in l, downed of one level. This function visit the list in
+prefix order."
+  (cond
+    ((null l) (reverse acc))	
+    ((atomp (car l)) (down*-with-acc-prefix
+		      (cdr l)		       ;recur and ...
+		      (cons (cons (car l) '()) ;push down
+			    acc)))
+    (t (down*-with-acc-prefix		;*Oh My Gawd*
+	(cdr l)
+	(cons (down*-with-acc-prefix (car l) '())
+	      acc)))))
+
+;; WRONG!! I'm not able to write this postfix version...It can be
+;; written preserving tail recursion?
+(defun down*-with-acc-postfix (l acc)
+  "Given a list and an accumulator, returns a list such that contains
+each atom in l, downed of one level. This function visit the list in
+postfix order."
+  (cond
+    ((null l) (reverse acc))	
+    ((atomp (car l)) (down*-with-acc-postfix
+		      (cdr l)		       ;recur and ...
+		      (cons (cons (car l) '()) ;push down
+			    acc)))
+    (t (cons (down*-with-acc-postfix
+	(car l)				;*Oh My Gawd*
+	'()) 
+	(down*-with-acc-postfix (cdr l) acc)) )))
+
+(defun down* (l)
+  (cond
+    ((null l) '())
+    ((atomp (car l)) (cons (cons (car l) '()) (down* (cdr l))))
+    (t (cons (down* (car l)) (down* (cdr l))))))
+
+(defun up* (l)
+  (cond
+    ((null l) '())			;() to allow list construction
+    ((atomp (car l))			;just keep the atom
+     (cons (car l) (up* (cdr l))))
+    ((null (car l)) (up* (cdr l)))	;ignore the empty list
+    ((onep (length (car l)))		;keep the singleton atom
+     (cons (car (car l)) (up* (cdr l)))) 
+    (t (cons (up* (car l)) (up* (cdr l))))) ) ;*Oh My Gawd*
+
+(defun up*-with-acc-prefix (l acc)
+  (cond
+    ((null l) (reverse acc))
+    ((atomp (car l)) (up*-with-acc-prefix (cdr l)
+					  (cons (car l) acc)))
+    ((null (car l)) (up*-with-acc-prefix (cdr l) acc))
+    ((onep (length (car l)))
+     (up*-with-acc-prefix (cdr l)
+			  (cons (car (car l))
+				acc)))
+    (t (up*-with-acc-prefix (cdr l)
+			    (cons (up*-with-acc-prefix (car l) '())
+				  acc)))))
