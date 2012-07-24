@@ -12,7 +12,14 @@
 	 (eq 'or (prefix-operator-getter l)))
      (unlimited-arguments-checker
       (and-or-arguments-getter l)
-      #'lexp?))
+      #'lexp?))				;here we can just pass the
+					;current LEXP? function as
+					;argument because the argument
+					;to this function will be an
+					;argument to check. We've not
+					;to close under any other
+					;object, for a comparison see
+					;the function COVERED?
     ((and (eq 2 (length l))		;for the NOT operator we
 					;require exactly one
 					;sub-logic-exp
@@ -27,17 +34,26 @@
 					;sexp (which can be an atom or
 					;a list of course)
 
-(defun unlimited-arguments-checker (args mutual-recursion)
+(defun unlimited-arguments-checker
+    (args
+     mutual-recursion
+     &key (composer (lambda (fst snd)
+		      (and fst snd)))
+     (base-value t))
   (cond
-    ((null args) t)			;all the arguments are
+    ((null args) base-value)		;all the arguments are
 					;well-formed logic expressions
-    (t (and (funcall mutual-recursion
-		     (car args))	;make mutual recursion with
-					;lexp? followed by natural
-					;recursion on the remaining
-					;arguments.
-	    (unlimited-arguments-checker (cdr args)
-					 mutual-recursion)))))
+    (t (funcall composer
+		(funcall mutual-recursion (car args)) ;make mutual
+						      ;recursion with
+						      ;lexp?  followed
+						      ;by natural
+						      ;recursion on
+						      ;the remaining
+						      ;arguments.
+		(unlimited-arguments-checker
+		 (cdr args)  mutual-recursion
+		 :composer composer :base-value base-value)))))
 
 (defun prefix-operator-getter (l)
   (car l))
@@ -84,4 +100,41 @@
 					    ;tocheck
  
     
-  
+(defun lookup (a al)
+  "Assume AL an association list."
+  (cond
+    ((null al) nil)
+    ((eq a (car (car al))) (car (cdr (car al))))
+    (t (lookup a (cdr al)))))
+
+(defun extract-variables (al)
+  "Assume AL an association list."
+  (cond
+    ((null al) '())
+    (t (cons (car (car al))
+	     (extract-variables (cdr al))))))
+
+(defun meaning-of-lexp (lexp al)
+  "Assume LEXP a logic expression and AL an association list (the
+  state)"
+  (cond
+    ((not (lexp? lexp)) 'not-a-logic-expression)
+    ((null lexp) nil)
+    ((covered? lexp (extract-variables al))
+     (cond
+       ((atomp lexp) (lookup lexp al))
+       ((eq 'and (prefix-operator-getter lexp))
+	(unlimited-arguments-checker
+	 (and-or-arguments-getter lexp)
+	 #'(lambda (argument-lexp)
+	     (meaning-of-lexp argument-lexp al))))
+       ((eq 'or (prefix-operator-getter lexp))
+	(unlimited-arguments-checker
+	 (and-or-arguments-getter lexp)
+	 #'(lambda (argument-lexp)
+	     (meaning-of-lexp argument-lexp al))
+	 :composer (lambda (fst snd)
+		      (or fst snd))
+	 :base-value nil))
+       (t (not (meaning-of-lexp (not-arguments-getter lexp) al)))))
+    (t 'not-covered)))
