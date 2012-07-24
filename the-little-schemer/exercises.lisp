@@ -163,3 +163,20 @@ postfix order."
     (t (up*-with-acc-prefix (cdr l)
 			    (cons (up*-with-acc-prefix (car l) '())
 				  acc)))))
+
+;; just to do a proposed exercise, we implement the occur* function
+;; using as always the accumulation technique
+(defun occur*-with-acc (a l acc)
+  (cond
+    ((null l) acc)
+    ((atomp (car l))
+     (cond
+       ((eq a (car l)) (occur*-with-acc a (cdr l) (1+ acc)))
+       (t (occur*-with-acc a (cdr l) acc))))
+    ;;here we proceed in postfix. Notice that here the order in which
+    ;;we recur (ie. first on cdr or first on the car) doesn't matter
+    ;;because the SUM function is commutative...too much simpler than
+    ;;the down*-with... and up*-with... functions.
+    (t (occur*-with-acc a (cdr l) 	
+			(occur*-with-acc a (car l) acc)))))
+

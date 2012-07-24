@@ -74,6 +74,9 @@
 		(up*-with-acc-prefix
 		 '((() ((()) ())) ()) '()))
 
-  
+  (assert-eql 4 (occur*-with-acc 'a
+				 '((((n (b ((a)))) a)) a (a)) 0))
+  (assert-eql 0 (occur*-with-acc 'j
+				 '((((a (b ((a)))) a)) a (a)) 0))
   
   )
