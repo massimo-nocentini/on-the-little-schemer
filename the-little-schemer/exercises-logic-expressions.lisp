@@ -6,11 +6,11 @@
 					;however always false!
     ((atomp l) (not (numberp l)))	;predicate that characterize
 					;the set of logic expressions
-    ((or (eq 'and (prefix-operator-getter l)) ;for AND and OR op we
-					      ;allow illimited logic
-					      ;expression arguments
+    ((or (eq 'and (prefix-operator-getter l)) 
 	 (eq 'or (prefix-operator-getter l)))
-     (unlimited-arguments-checker
+     (unlimited-arguments-checker	;for AND and OR op we allow
+					;illimited logic
+					;sub-expression arguments
       (and-or-arguments-getter l)
       #'lexp?))				;here we can just pass the
 					;current LEXP? function as
@@ -22,7 +22,8 @@
 					;the function COVERED?
     ((and (eq 2 (length l))		;for the NOT operator we
 					;require exactly one
-					;sub-logic-exp
+					;sub-logic-exp, more than NOT
+					;symbol itself.
 	  (eq 'not (prefix-operator-getter l)))
      (lexp? (not-arguments-getter l)))	;just recur with the single
 					;sub expression to check
@@ -39,7 +40,10 @@
      mutual-recursion
      &key (composer (lambda (fst snd)
 		      (and fst snd)))
-     (base-value t))
+     (base-value t))			;the base value is T, the
+					;neutral element of AND
+					;function (see the default
+					;lambda for COMPOSER argument)
   (cond
     ((null args) base-value)		;all the arguments are
 					;well-formed logic expressions
@@ -134,7 +138,10 @@
 	 #'(lambda (argument-lexp)
 	     (meaning-of-lexp argument-lexp al))
 	 :composer (lambda (fst snd)
-		      (or fst snd))
-	 :base-value nil))
+		      (or fst snd))	;here we cannot pass #'or
+					;because OR is a macro, not a
+					;function.
+	 :base-value nil))		;NIL is the neutral element
+					;for OR function
        (t (not (meaning-of-lexp (not-arguments-getter lexp) al)))))
     (t 'not-covered)))
