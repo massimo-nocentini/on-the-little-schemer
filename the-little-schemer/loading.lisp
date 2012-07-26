@@ -6,6 +6,7 @@
 (load "the-little-schemer.lisp")
 (load "chapter-two.lisp")
 (load "chapter-three.lisp")
+(load "friends-and-relations.lisp")
 (load "exercises.lisp")
 (load "exercises-logic-expressions.lisp")
 (load "exercises-unittests.lisp")
@@ -20,6 +21,7 @@
 (load "questions-answers-of-chapter-ten.lisp")
 (load "questions-answers-of-chapter-three.lisp")
 (load "questions-answers-of-chapter-two.lisp")
+
 
 
 
