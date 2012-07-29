@@ -72,19 +72,21 @@
 			   #'equal)
 	       nil a l)))
 
-(defun value-with-repetition (aexp)
+(defun value-0 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. This is the basic version from
+which we start our refactoring process."
   (cond
     ((numberp aexp) aexp)
-    ((eq '+ (car aexp)) (+ (value (cadr aexp))
+    ((eq '+ (car aexp)) (+ (value (cadr aexp)) ;code repeated
 			   (value (caddr aexp))))
     ((eq '* (car aexp)) (* (value (cadr aexp))
 			   (value (caddr aexp))))))
 
-(defun value-with-encapsulated-common-behavior (aexp)
+(defun value-1 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. In this version we abstract
+away the association with the operators #'+ and #'*."
   (cond
     ((numberp aexp) aexp)
     ((eq '+ (car aexp)) ((lambda (op-fun)
@@ -96,24 +98,32 @@ appear in it are the + and * operator."
 				    (value (cadr aexp))
 				    (value (caddr aexp)))) #'*))))
 
-(defun value-with-abstracted-common-behavior (aexp)
+(defun value-2 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. In this version we factor the
+abstracted code, passing it as an argument, hence the major structure
+of the code present in the previous version, is wrapped in a lambda
+which is immediately executed."
   ((lambda (apply-with-operator)
      (cond
        ((numberp aexp) aexp)
+       ;; the following are two cond-lines with a similar structure
        ((eq '+ (car aexp)) (funcall apply-with-operator #'+))
        ((eq '* (car aexp)) (funcall apply-with-operator #'*))))
    (lambda (op-fun) (funcall op-fun
 			     (value (cadr aexp))
 			     (value (caddr aexp))))))
 
-(defun value-with-simplified-cond-expr (aexp)
+(defun value-3 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. In this version we try to
+abstract and later factor, the common structure of the cond-lines
+commented in the previous version."
   ((lambda (apply-with-operator recfun)
      (cond
        ((numberp aexp) aexp)
+       ;; with this refactoring step we introduce too much complexity
+       ;; to the abstracted lambda (4 arguments are passed in!).
        (t (or (funcall recfun '+ (car aexp) #'+ apply-with-operator)
 	      (funcall recfun '* (car aexp) #'* apply-with-operator)))))
    (lambda (op-fun) (funcall op-fun
@@ -123,23 +133,47 @@ appear in it are the + and * operator."
 	   (when (eq op-symbol operator)
 	     (funcall apply-with-operator operator-f)))))
 
-(defun value-with-simplified-inner-lambdas (aexp)
+(defun value-4 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. In this version we inline the
+lambda associated to the symbol apply-with-operator (the first we
+extracted). For this refactoring we just copy the lambda definition an
+put it in the first position of a sexp, replacing the old (funcall
+apply-with-operator..."
   ((lambda (recfun)
      (cond
        ((numberp aexp) aexp)
        (t (or (funcall recfun '+ (car aexp) #'+ )
 	      (funcall recfun '* (car aexp) #'* )))))
    (lambda (op-symbol operator operator-f)
-     (when (eq op-symbol operator)
-       ((lambda (op-fun) (funcall op-fun
-				  (value (cadr aexp))
-				  (value (caddr aexp)))) operator-f)))))
+     ;; this lambda seems to do too many things: first it checks if
+     ;; the PASSED ARGUMENTS about the operator allow to (second)
+     ;; invoke the corresponding function. 
+     (when (eq op-symbol operator)	;here we use only the passed
+					;argument for computing the
+					;comparison. Unless we want
+					;flexibility about the
+					;equality comparer, this
+					;operation can be performed
+					;outside this lambda, passing
+					;only the operator-f function,
+					;which is the only tru
+					;dependency this function
+					;needs.
+       ((lambda (op-fun)
+	  (funcall op-fun
+		   (value (cadr aexp))
+		   (value (caddr aexp)))) operator-f)))))
 
-(defun value-with-prepared-op-function-builder (aexp)
+(defun value-5 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. In this version we abstract
+away the two or-branches in order to inline the OR completely. In this
+refactoring we define a lambda which doesn't abstract its inner
+association as done in the previous versions, but we introduce a cond
+expression in order to cover both cases which the OR expr covers. Pay
+attention to this: this step should be applied with some little
+adjustments on version 2."
   ((lambda (recfun)
      (cond
        ((numberp aexp) aexp)
@@ -158,9 +192,12 @@ appear in it are the + and * operator."
 	      (value (cadr aexp))
 	      (value (caddr aexp))))))
 
-(defun value-with-doubled-or-branches (aexp)
+(defun value-6 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. In this version we factor the
+abstracted lambda about the OR expr, making a wrapping lambda, put it
+in the function position and execute it passing the abstracted lambda
+about the OR behavior."
   ((lambda (recfun op-to-op-f)
      (cond
        ((numberp aexp) aexp)
@@ -175,7 +212,7 @@ appear in it are the + and * operator."
        ((eq '+ operator) #'+)
        ((eq '* operator) #'*)))))
 
-(defun value-prepared-for-reclambda-inlining (aexp)
+(defun value-7 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
 appear in it are the + and * operator."
   ((lambda (recfun op-to-op-f)
@@ -193,7 +230,9 @@ appear in it are the + and * operator."
 
 (defun value (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. The final version obtained
+inlining the lambda about the application of the operator function
+corresponding to the operator symbol."
   ((lambda (op-to-op-f)
      (cond
        ((numberp aexp) aexp)
