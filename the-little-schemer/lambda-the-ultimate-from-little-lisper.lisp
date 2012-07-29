@@ -65,6 +65,12 @@
 				new old (cdr l)))))))
 
 
+(defun REMBER-F-generate-something-that-INSERT-GEN-can-generate? (a l)
+  (eq (funcall (rember-gen #'equal) a l)
+      (funcall (insert-gen (lambda (new old rest)
+			     rest)
+			   #'equal)
+	       nil a l)))
 
 (define-test lambda-the-ultimate-from-little-lisper
 
@@ -91,10 +97,18 @@
 						 ;definition instead,
 						 ;directly building an
 						 ;(anonymous)
-						 ;function.
+						 ;function. It is
+						 ;better because you
+						 ;do not need to
+						 ;remember as many
+						 ;names.
 			    (cons new (cons old rest)))
 			  #'eq)
 			 'new-atom
 			 'old-atom
 			 '(salad old-atom something else)))
-  )
+
+  (assert-true
+   '(salad something else)
+   (REMBER-F-generate-something-that-INSERT-GEN-can-generate?
+    'old-atom '(salad old-atom something else))) )
