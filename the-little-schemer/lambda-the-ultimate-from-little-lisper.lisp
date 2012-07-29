@@ -30,6 +30,24 @@
       (t (cons (car l)
 	       (funcall (rember-gen test?) a (cdr l)))))))
 
+(defun insert-gen-eq (seq-f)
+  "Assume SEQ a function of three parameter which return a cons
+  structure to be returned as result of the generated function."
+
+  (lambda (new old l)
+    (cond
+      ((null l) '())
+      ((eq old (car l))			;here we fix the function that
+					;check the equality, using
+					;#'eq. This isn't flexible
+					;like REMBER-GEN shows, hence
+					;in the following INSERT-GEN
+					;we try to abstract the
+					;association with #'eq.
+       (funcall seq-f new old (cdr l)))
+      (t (cons (car l) (funcall (insert-gen-eq seq-f)
+				new old (cdr l)))))))
+
 (defun insert-gen (seq-f eq-f)
   "Assume SEQ a function of three parameter which return a cons
   structure to be returned as result of the generated function."
@@ -66,9 +84,16 @@
 		(funcall (rember-gen #'eq) 'tuna '(tuna salad is good)))
 
   (assert-equal '(salad new-atom old-atom something else)
-		(funcall (insert-gen (lambda (new old rest)
-				       (cons new (cons old rest)))
-				     #'eq)
+		(funcall (insert-gen
+			  (lambda (new old rest) ;instead of defining
+						 ;a function for setL,
+						 ;we pass its
+						 ;definition instead,
+						 ;directly building an
+						 ;(anonymous)
+						 ;function.
+			    (cons new (cons old rest)))
+			  #'eq)
 			 'new-atom
 			 'old-atom
 			 '(salad old-atom something else)))
