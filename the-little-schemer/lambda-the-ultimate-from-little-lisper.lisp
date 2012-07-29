@@ -66,10 +66,10 @@
 		(funcall (rember-gen #'eq) 'tuna '(tuna salad is good)))
 
   (assert-equal '(salad new-atom old-atom something else)
-		(insert-gen (lambda (new old rest)
-			      (cons new (cons old rest)))
-			    #'eq))
-
-  
-  
+		(funcall (insert-gen (lambda (new old rest)
+				       (cons new (cons old rest)))
+				     #'eq)
+			 'new-atom
+			 'old-atom
+			 '(salad old-atom something else)))
   )
