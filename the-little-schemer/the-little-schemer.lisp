@@ -321,7 +321,7 @@ How many times divisor is in dividend space?"
     ((atomp (car l)) (or (eqan a (car l))
 			 (member* a (cdr l))) )
     (t (or (member* a (car l))
-	   (member* a (cdr l))))) )
+	   (member* a (cdr l))))))
 
 (defun leftmost (l)
   "Contract: list-of-sexp -> atom"
