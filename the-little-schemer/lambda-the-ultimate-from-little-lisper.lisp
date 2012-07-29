@@ -214,7 +214,10 @@ about the OR behavior."
 
 (defun value-7 (aexp)
   "Assume AEXP an arithmetic expression and the only operator that can
-appear in it are the + and * operator."
+appear in it are the + and * operator. This refactoring step seems
+like refactoring toward polymorphims: the two cond-lines about the
+operator have just moved in other lambda (like send a message to
+another object instead to perform the computation...)".
   ((lambda (recfun op-to-op-f)
      (cond
        ((numberp aexp) aexp)
@@ -244,6 +247,17 @@ corresponding to the operator symbol."
        ((eq '+ operator) #'+)
        ((eq '* operator) #'*)))))
 
+(defun subset? (set1 set2)
+  (cond
+    ((null set1) t)
+    (t (and (member (car set1) set2)
+	    (subset? (cdr set1) set2)))))
+
+(defun intersect? (set1 set2)
+  (cond
+    ((null set1) nil)
+    (t (or (member (car set1) set2)
+	   (intersect? (cdr set1) set2)))))
 
 (define-test lambda-the-ultimate-from-little-lisper
 
