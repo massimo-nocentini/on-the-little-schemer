@@ -157,7 +157,7 @@ apply-with-operator..."
 					;operation can be performed
 					;outside this lambda, passing
 					;only the operator-f function,
-					;which is the only tru
+					;which is the only true
 					;dependency this function
 					;needs.
        ((lambda (op-fun)
@@ -247,17 +247,89 @@ corresponding to the operator symbol."
        ((eq '+ operator) #'+)
        ((eq '* operator) #'*)))))
 
-(defun subset? (set1 set2)
+;; the following functions SUBSET? and INTERSECT? have the same
+;; structure hence we should abstract them into a function SET-F which
+;; can generate both of them.
+(defun subset?-duplicate-code (set1 set2)
   (cond
     ((null set1) t)
     (t (and (member (car set1) set2)
 	    (subset? (cdr set1) set2)))))
 
-(defun intersect? (set1 set2)
+(defun intersect?-duplicate-code (set1 set2)
   (cond
     ((null set1) nil)
     (t (or (member (car set1) set2)
 	   (intersect? (cdr set1) set2)))))
+
+;; in order to abstract the previous functions I've performed the
+;; following steps:
+;;    1. make a copy of one of them (I choose INTERSECT?)
+;;    2. insert a new line on top with the DEFUN form
+;;    3. changed the old (DEFUN INTERSECT? with (LAMBDA
+;; all the remaining code of the function remains the same except
+;; the recursive invocation because we have to pass again the
+;; LOGICAL and CONST arguments and then invoke the newly built
+;; function.
+(defun set-f-before-*prime-logical (logical const)
+  (lambda (set1 set2)
+    (cond
+      ((null set1) const)
+      (t (funcall logical
+		  (member (car set1) set2)
+		  (funcall (set-f logical const)
+			   (cdr set1)
+			   set2))))))
+
+;; now what we've abstracted almost work because AND and OR are
+;; macros, not functions, hence we have more work to get done, namely
+;; create a first order AND and OR functions, in order to pass them as
+;; arguments.
+;; (defun intersect? (set1 set2)
+;;   (funcall (set-f #'and nil) set1 set2))
+
+;; the following functions are a shy implementations because before
+;; their computations start, both arguments have to be evaluated,
+;; which aren't what AND and OR truly do: they do now always ask the
+;; second question.
+(defun and-first-order-incorrect (x y)
+  (and x y))
+(defun or-first-order-incorrect (x y)
+  (or x y))
+
+;; in order to have the right behavior we have to define an ad-hoc
+;; version of AND and OR, which associate them with the functions
+;; INTERSECT? and SUBSET?. Here the first argument is given, the other
+;; two are the two set which we have to use with the recursion.  Pay
+;; attention: when we're writing these functions, both SUBSET? both
+;; INTERSECT? do not exists!
+(defun and-prime (x set1 set2)
+  (and x (subset? (cdr set1) set2)))
+
+;; PAY ATTENTION: after we finished to type this two definitions, the
+;; functions SUBSET? and INTERSECT? no longer exist. Compiling the
+;; source, LISP tell us a style warning about their nonexistence but
+;; doesn't halt the compilation (try to change the symbol INTERSECT
+;; with INTERSECT-NON-EXISTENT to reproduce the warning).
+(defun or-prime (x set1 set2)
+  (or x (intersect? (cdr set1) set2)))
+
+;; now we can define the nonexistent SUBSET? and INTERSECT? using the
+;; *-prime functions defined just for them...awfully recursive!
+(defun intersect? (set1 set2)
+  (funcall (set-f #'or-prime nil) set1 set2))
+
+(defun subset? (set1 set2)
+  (funcall (set-f #'and-prime t) set1 set2))
+
+;; now we've to adjust the last line where we call the passed LOGICAL
+;; function, giving to it the first MEMBER check and the two sets.
+(defun set-f (logical const)
+  (lambda (set1 set2)
+    (cond
+      ((null set1) const)
+      (t (funcall logical
+		  (member (car set1) set2) set1 set2)))))
 
 (define-test lambda-the-ultimate-from-little-lisper
 
@@ -302,6 +374,12 @@ corresponding to the operator symbol."
 
   (assert-eq 4 (value '(+ 1 3)))
   (assert-eq 16 (value '(+ 1 (* 3 5))))
+
+  (assert-false (intersect? '(3) '(2 4)))
+  (assert-true (intersect? '(2) '(2 4)))
+
+  (assert-false (subset? '(3) '(2 4)))
+  (assert-true (subset? '(2) '(2 4)))    
 
   )
 
